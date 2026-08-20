@@ -1,0 +1,15 @@
+---
+description: Tailwind and UI guidance for Papeletto customer/admin surfaces
+globs: "{app,components}/**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# UI / Tailwind
+
+- Tailwind utility-first; shared tokens via CSS variables when the design system is introduced.
+- Customer flows: one clear job per screen (upload → quote → confirm).
+- Avoid dashboard clutter on customer pages; admin may use denser tables.
+- Spanish copy; short helper text under complex fields (especially derecho de petición).
+- Show upload limits, price breakdown, and job status explicitly.
+- Accessible forms: labels, errors tied to inputs, keyboard-friendly actions.
+- Do not introduce a second CSS framework.

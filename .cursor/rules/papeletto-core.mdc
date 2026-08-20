@@ -1,0 +1,33 @@
+---
+description: Core Papeletto project conventions — stack, pnpm, specs, Spanish domain terms
+alwaysApply: true
+---
+
+# Papeletto core
+
+## Stack (do not replace without explicit user request)
+
+- Next.js App Router + React
+- PostgreSQL + Prisma
+- Tailwind CSS
+- n8n for CV / derechos de petición / complex automations
+- PrintNode API for physical printing
+- Package manager: **pnpm only** (never npm/yarn lockfiles)
+
+## Source of truth
+
+- Product/tech specs live in `docs/specs/`. Read them before inventing domain behavior.
+- Prefer extending existing modules over new top-level folders.
+
+## Language
+
+- **Documentación** (`docs/`, `README.md`, specs): español (Colombia). Mantener en inglés solo terminología técnica: nombres de stack, APIs, env vars, tipos/enums de código, rutas de módulos, estados (`QUEUED`, `PrintJob`), etc.
+- **Código**: identificadores en inglés (`Order`, `PrintJob`; `derechoPeticion` solo al reflejar claves de dominio).
+- **UI / copy al cliente**: español (Colombia).
+- **Etiquetas de dominio**: impresión estándar, impresión especial, CV, derecho de petición.
+
+## Safety
+
+- Secrets only in server env (`PRINTNODE_*`, `N8N_*`, `DATABASE_URL`).
+- No PrintNode/n8n keys in client components.
+- Do not commit `.env` or customer uploaded files.

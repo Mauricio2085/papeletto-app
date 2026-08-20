@@ -1,0 +1,15 @@
+---
+description: n8n webhook integration for document generation
+globs: "{app,lib}/**/*{n8n,cv,derecho}*/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# n8n automations
+
+- Next.js owns forms, validation, `DocumentJob` persistence, and downloads.
+- n8n owns template rendering and multi-step document assembly.
+- Every outbound webhook includes `jobId`, `callbackUrl`, and HMAC signature.
+- Callbacks: `POST /api/webhooks/n8n` — verify secret, idempotent by `jobId`.
+- Separate webhook URLs for CV and derecho de petición.
+- Never block the HTTP request waiting for long n8n runs; queue job then poll/refresh status.
+- See skills: `cv-generation`, `derecho-peticion`, `n8n-workflows`.

@@ -1,0 +1,14 @@
+---
+description: Prisma and PostgreSQL conventions
+globs: prisma/**/*, lib/prisma/**/*.ts, **/schema.prisma
+alwaysApply: false
+---
+
+# Prisma / PostgreSQL
+
+- Single schema: `prisma/schema.prisma`.
+- Money as integer **cents** (`subtotalCents`, `totalCents`).
+- Persist pricing snapshots on orders (`pricingSnapshot` JSON) so historical totals don’t drift.
+- Use enums from the data-model spec (`OrderType`, `OrderStatus`, etc.).
+- Migrations via `pnpm prisma migrate`; never hand-edit production DB as the default path.
+- Seed prices/printers for local dev; don’t hardcode prices in UI components.

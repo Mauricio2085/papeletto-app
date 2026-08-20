@@ -1,0 +1,27 @@
+---
+description: Print domain rules for standard and special print orders
+globs: "{app,lib,components}/**/*print*/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Print services
+
+## Impresión estándar
+
+- Accept PDF and text; compute page count before quoting.
+- Quote formula: `pages × copies × unitPrice` from `PriceConfig`.
+- After confirm → create `PrintJob` → PrintNode; persist remote job id.
+
+## Impresión especial
+
+- Always produce two outputs when platform export is requested:
+  1. print-ready (physical size/DPI)
+  2. web-safe **&lt; 2MB**
+- Use fixed size catalog from config; don’t invent free-form dimensions in MVP.
+- Send only print-ready assets to PrintNode.
+
+## Shared
+
+- Validate MIME + max upload size server-side.
+- Failed PrintNode calls → `FAILED` + `lastError` + staff retry path.
+- See skills: `standard-print`, `special-print`, `printnode-integration`.

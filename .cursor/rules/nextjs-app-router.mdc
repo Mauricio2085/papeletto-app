@@ -1,0 +1,21 @@
+---
+description: Next.js App Router and React patterns for Papeletto
+globs: app/**/*.{ts,tsx}, components/**/*.{ts,tsx}, lib/**/*.ts
+alwaysApply: false
+---
+
+# Next.js App Router
+
+- Use App Router only (`app/`). No new Pages Router code.
+- Server Components by default; add `"use client"` only for interactivity.
+- Mutations: prefer Server Actions; use Route Handlers for webhooks and external callbacks.
+- Print/file/n8n work runs on **Node.js runtime**, not Edge.
+- Colocate route UI in `app/(public)/` and `app/(admin)/`; shared UI in `components/`.
+- Data access only from server code via `lib/prisma` — never import Prisma in client components.
+
+```tsx
+// ✅ server
+import { prisma } from "@/lib/prisma";
+
+// ❌ client component importing prisma
+```
