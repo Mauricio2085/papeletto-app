@@ -1,34 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3efe6;
-  --foreground: #1c2a22;
-  --brand: #0f6b4c;
-  --brand-ink: #083528;
-  --surface: #fffdf8;
-  --muted: #5c6b63;
-  --line: #d7d0c3;
-  --accent: #c45c26;
+  --background: #070b12;
+  --foreground: #e8eef7;
+  --brand: #2b7fff;
+  --brand-bright: #5b9dff;
+  --brand-deep: #1a5fd4;
+  --brand-glow: rgba(43, 127, 255, 0.35);
+  --surface: #0f1623;
+  --surface-raised: #151f30;
+  --surface-hover: #1a2740;
+  --muted: #8b9cb8;
+  --line: rgba(91, 157, 255, 0.14);
+  --fold: rgba(255, 255, 255, 0.08);
+  --fold-shadow: rgba(0, 0, 0, 0.35);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
-  --color-brand-ink: var(--brand-ink);
+  --color-brand-bright: var(--brand-bright);
+  --color-brand-deep: var(--brand-deep);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-hover: var(--surface-hover);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-accent: var(--accent);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
-  background:
-    radial-gradient(circle at top left, rgba(15, 107, 76, 0.12), transparent 40%),
-    radial-gradient(circle at 80% 20%, rgba(196, 92, 38, 0.1), transparent 35%),
-    var(--background);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(43, 127, 255, 0.18), transparent),
+    radial-gradient(circle at 100% 0%, rgba(26, 95, 212, 0.12), transparent 40%),
+    linear-gradient(rgba(91, 157, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 157, 255, 0.03) 1px, transparent 1px);
+  background-size: auto, auto, 48px 48px, 48px 48px;
   color: var(--foreground);
   font-family: var(--font-body), ui-sans-serif, sans-serif;
 }
@@ -36,5 +50,63 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-family: var(--font-display), ui-sans-serif, sans-serif;
+}
+
+/* Esquina doblada tipo hoja / logo */
+.paper-fold {
+  position: relative;
+  overflow: hidden;
+}
+
+.paper-fold::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: linear-gradient(
+    225deg,
+    var(--fold-shadow) 0%,
+    var(--fold) 45%,
+    transparent 46%
+  );
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.paper-fold::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: linear-gradient(135deg, var(--brand-bright), var(--brand-deep));
+  opacity: 0.55;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.glow-ring {
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 0 40px -8px var(--brand-glow);
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float-soft {
+  animation: float-soft 5s ease-in-out infinite;
 }

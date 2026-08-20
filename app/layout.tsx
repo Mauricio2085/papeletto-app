@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { Nunito, Outfit } from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
-const body = Source_Sans_3({
+const body = Nunito({
   variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${display.variable} ${body.variable} h-full antialiased`}>
+    <html
+      lang="es"
+      className={`${display.variable} ${body.variable} h-full antialiased dark`}
+    >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
