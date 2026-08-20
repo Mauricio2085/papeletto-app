@@ -1,12 +1,7 @@
-import { ServicePlaceholder } from "@/components/service-placeholder";
+import { ComingSoonService } from "@/components/coming-soon-service";
 
 export const metadata = { title: "Generación de CV" };
 
 export default function CvPage() {
-  return (
-    <ServicePlaceholder
-      title="Generación de CV"
-      description="Formulario guiado y generación automática vía n8n."
-    />
-  );
+  return <ComingSoonService serviceKey="cv" />;
 }

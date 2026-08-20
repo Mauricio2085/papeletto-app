@@ -1,12 +1,7 @@
-import { ServicePlaceholder } from "@/components/service-placeholder";
+import { ComingSoonService } from "@/components/coming-soon-service";
 
 export const metadata = { title: "Derecho de petición" };
 
 export default function DerechoPeticionPage() {
-  return (
-    <ServicePlaceholder
-      title="Derechos de petición"
-      description="Formulario guiado y generación del documento vía n8n. Herramienta de redacción, no asesoría legal."
-    />
-  );
+  return <ComingSoonService serviceKey="derecho-peticion" />;
 }

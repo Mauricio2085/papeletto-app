@@ -1,12 +1,7 @@
-import { ServicePlaceholder } from "@/components/service-placeholder";
+import { ComingSoonService } from "@/components/coming-soon-service";
 
 export const metadata = { title: "Impresión especial" };
 
 export default function ImpresionEspecialPage() {
-  return (
-    <ServicePlaceholder
-      title="Impresión especial"
-      description="Organiza fotos y documentos en medidas estándar y genera export web bajo 2MB."
-    />
-  );
+  return <ComingSoonService serviceKey="impresion-especial" />;
 }

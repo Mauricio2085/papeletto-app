@@ -2,34 +2,7 @@ import { PageShell } from "@/components/page-shell";
 import { PaperCard } from "@/components/paper-card";
 import { PapelettoLogo } from "@/components/papeletto-logo";
 import { ServiceCard } from "@/components/service-card";
-
-const services = [
-  {
-    href: "/impresion-estandar",
-    title: "Impresión estándar",
-    description: "Sube PDF o texto, calcula hojas y envía a imprimir.",
-    icon: "print" as const,
-  },
-  {
-    href: "/impresion-especial",
-    title: "Impresión especial",
-    description: "Organiza fotos y documentos en medidas estándar y exporta bajo 2MB.",
-    icon: "photo" as const,
-    tag: "bajo 2MB",
-  },
-  {
-    href: "/cv",
-    title: "Generación de CV",
-    description: "Completa tus datos y genera un currículum listo para descargar.",
-    icon: "cv" as const,
-  },
-  {
-    href: "/derecho-peticion",
-    title: "Derechos de petición",
-    description: "Redacta y genera tu derecho de petición con acompañamiento guiado.",
-    icon: "legal" as const,
-  },
-] as const;
+import { services } from "@/lib/services";
 
 export default function HomePage() {
   return (
@@ -57,7 +30,7 @@ export default function HomePage() {
             <div className="relative flex flex-col items-center text-center">
               <PapelettoLogo variant="hero" priority />
               <p className="mt-6 text-sm leading-relaxed text-muted">
-                Impresión estándar y especial · CV automáticos · Derechos de petición
+                Impresión estándar disponible · Más servicios próximamente
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {["PrintNode", "n8n", "Prisma"].map((tech) => (
@@ -76,11 +49,13 @@ export default function HomePage() {
         <section className="space-y-6">
           <div>
             <h2 className="text-2xl font-semibold">Servicios</h2>
-            <p className="mt-1 text-muted">Elige un flujo para comenzar.</p>
+            <p className="mt-1 text-muted">
+              Por ahora solo impresión estándar. Los demás llegan pronto.
+            </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {services.map((service) => (
-              <ServiceCard key={service.href} {...service} />
+            {services.map(({ key: serviceKey, ...service }) => (
+              <ServiceCard key={serviceKey} {...service} />
             ))}
           </div>
         </section>
