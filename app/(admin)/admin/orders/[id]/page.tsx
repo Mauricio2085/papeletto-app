@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AdminRetryPrintButton } from "@/components/admin-retry-print-button";
 import { PaperCard } from "@/components/paper-card";
 import { formatDateTimeBogota } from "@/lib/format/datetime";
 import { formatCop } from "@/lib/format/currency";
+import { canRetryStandardPrint } from "@/lib/orders/can-retry";
+import { visibleOrderAssets } from "@/lib/orders/assets";
 import {
   ORDER_STATUS_BADGE_CLASS,
   ORDER_STATUS_LABELS,
   ORDER_TYPE_LABELS,
+  assetKindLabel,
+  printJobStatusLabel,
 } from "@/lib/orders/labels";
 import { parseOrderMetadata, parseStandardPrintSnapshot } from "@/lib/orders/parse";
 import { getOrderById } from "@/lib/orders/queries";
@@ -31,6 +36,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const snapshot = parseStandardPrintSnapshot(order.pricingSnapshot);
   const metadata = parseOrderMetadata(order.metadata);
   const originalAsset = order.assets.find((asset) => asset.kind === "original");
+  const displayAssets = visibleOrderAssets(order.assets);
+  const showRetry = canRetryStandardPrint(order);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
@@ -74,7 +81,10 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-muted">Archivo</dt>
-              <dd className="max-w-[14rem] truncate font-medium text-foreground" title={originalAsset?.filename ?? metadata.filename}>
+              <dd
+                className="max-w-[14rem] truncate font-medium text-foreground"
+                title={originalAsset?.filename ?? metadata.filename}
+              >
                 {originalAsset?.filename ?? metadata.filename ?? "—"}
               </dd>
             </div>
@@ -109,18 +119,18 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
         <PaperCard className="p-6">
           <h2 className="text-lg font-semibold">Archivos</h2>
-          {order.assets.length === 0 ? (
+          {displayAssets.length === 0 ? (
             <p className="mt-4 text-sm text-muted">Sin archivos adjuntos.</p>
           ) : (
             <ul className="mt-4 space-y-3">
-              {order.assets.map((asset) => (
+              {displayAssets.map((asset) => (
                 <li
                   key={asset.id}
                   className="rounded-xl border border-line bg-background/40 px-4 py-3 text-sm"
                 >
                   <p className="font-medium text-foreground">{asset.filename}</p>
                   <p className="mt-1 text-xs text-muted">
-                    {asset.kind} · {asset.mimeType} ·{" "}
+                    {assetKindLabel(asset.kind)} · {asset.mimeType} ·{" "}
                     {asset.pageCount != null ? `${asset.pageCount} pág.` : "sin conteo"} ·{" "}
                     {(asset.byteSize / 1024).toFixed(1)} KB
                   </p>
@@ -131,25 +141,59 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         </PaperCard>
       </div>
 
-      {order.printJobs.length > 0 && (
-        <PaperCard className="p-6">
-          <h2 className="text-lg font-semibold">Print jobs</h2>
-          <ul className="mt-4 space-y-3">
-            {order.printJobs.map((job) => (
-              <li
-                key={job.id}
-                className="rounded-xl border border-line bg-background/40 px-4 py-3 text-sm"
-              >
-                <p className="font-medium text-foreground">{job.status}</p>
-                <p className="mt-1 font-mono text-xs text-muted">
-                  {job.printNodeJobId ?? job.id}
-                </p>
-                {job.lastError && (
-                  <p className="mt-2 text-xs text-red-300">{job.lastError}</p>
-                )}
-              </li>
-            ))}
-          </ul>
+      {(order.printJobs.length > 0 || showRetry) && (
+        <PaperCard className="space-y-4 p-6">
+          <div>
+            <h2 className="text-lg font-semibold">Envíos a impresora</h2>
+            <p className="mt-1 text-sm text-muted">
+              Historial de intentos (logs). El reintento crea un envío nuevo; no edita
+              los anteriores.
+            </p>
+          </div>
+
+          {order.printJobs.length > 0 ? (
+            <ul className="space-y-3">
+              {order.printJobs.map((job) => (
+                <li
+                  key={job.id}
+                  className="rounded-xl border border-line bg-background/40 px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-medium text-foreground">
+                      {printJobStatusLabel(job.status)}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {formatDateTimeBogota(job.createdAt)}
+                    </p>
+                  </div>
+                  <p className="mt-1 font-mono text-xs text-muted">
+                    {job.printNodeJobId
+                      ? `PrintNode ${job.printNodeJobId}`
+                      : `Local ${job.id.slice(-8)}`}
+                    {" · "}
+                    impresora {job.printerId}
+                    {" · "}
+                    {job.copies} copia{job.copies === 1 ? "" : "s"}
+                  </p>
+                  {job.lastError && (
+                    <p className="mt-2 text-xs text-red-300">{job.lastError}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">Aún no hay envíos registrados.</p>
+          )}
+
+          {showRetry && (
+            <div className="border-t border-line pt-4">
+              <p className="mb-3 text-sm text-muted">
+                Hay un fallo de impresión. Puedes volver a enviar el archivo a la
+                impresora por defecto.
+              </p>
+              <AdminRetryPrintButton orderId={order.id} />
+            </div>
+          )}
         </PaperCard>
       )}
     </div>

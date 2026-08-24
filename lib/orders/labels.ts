@@ -30,3 +30,25 @@ export const ORDER_STATUS_BADGE_CLASS: Record<OrderStatus, string> = {
   FAILED: "border-red-500/40 bg-red-500/15 text-red-300",
   CANCELLED: "border-line bg-surface-raised text-muted",
 };
+
+export const ASSET_KIND_LABELS: Record<string, string> = {
+  original: "Archivo subido",
+  print_ready: "PDF para impresión",
+  web_safe: "Export web",
+  generated: "Generado",
+};
+
+export function assetKindLabel(kind: string): string {
+  return ASSET_KIND_LABELS[kind] ?? kind;
+}
+
+export const PRINT_JOB_STATUS_LABELS: Record<string, string> = {
+  PROCESSING: "Procesando",
+  SENT: "Enviado",
+  DRY_RUN: "Prueba (dry-run)",
+  FAILED: "Fallido",
+};
+
+export function printJobStatusLabel(status: string): string {
+  return PRINT_JOB_STATUS_LABELS[status] ?? status;
+}
