@@ -26,7 +26,16 @@ pnpm db:seed
 pnpm dev
 ```
 
-App: [http://localhost:3000](http://localhost:3000)
+### Acceso staff (dev)
+
+El panel **no** aparece en la UI pública. Abrir `/login` directamente.
+
+Credenciales por defecto del seed (cambiar en producción):
+
+- Email: `admin@papeletto.local`
+- Password: `papeletto-admin`
+
+Requiere `AUTH_SECRET` en `.env` (ver `.env.example`).
 
 ### Base de datos (Docker)
 
