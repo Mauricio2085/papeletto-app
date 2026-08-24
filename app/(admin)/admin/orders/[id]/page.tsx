@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AdminAssetPreview } from "@/components/admin-asset-preview";
 import { AdminStaffAction } from "@/components/admin-staff-action";
 import { PaperCard } from "@/components/paper-card";
 import { formatDateTimeBogota } from "@/lib/format/datetime";
@@ -12,7 +13,7 @@ import {
   canPrintStandardOrder,
   canRetryStandardPrint,
 } from "@/lib/orders/can-retry";
-import { visibleOrderAssets } from "@/lib/orders/assets";
+import { getPrintPreviewAsset, visibleOrderAssets } from "@/lib/orders/assets";
 import {
   ORDER_STATUS_BADGE_CLASS,
   ORDER_STATUS_LABELS,
@@ -44,6 +45,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const metadata = parseOrderMetadata(order.metadata);
   const originalAsset = order.assets.find((asset) => asset.kind === "original");
   const displayAssets = visibleOrderAssets(order.assets);
+  const previewAsset = getPrintPreviewAsset(order.assets);
   const showPrint = canPrintStandardOrder(order);
   const showRetry = canRetryStandardPrint(order);
   const showReady = canMarkOrderReady(order);
@@ -145,6 +147,13 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     {asset.pageCount != null ? `${asset.pageCount} pág.` : "sin conteo"} ·{" "}
                     {(asset.byteSize / 1024).toFixed(1)} KB
                   </p>
+                  <AdminAssetPreview
+                    orderId={order.id}
+                    assetId={asset.id}
+                    filename={asset.filename}
+                    mimeType={asset.mimeType}
+                    kind={asset.kind}
+                  />
                 </li>
               ))}
             </ul>
@@ -164,9 +173,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           {showPrint && (
             <div className="rounded-xl border border-brand/30 bg-brand/5 px-4 py-4">
               <p className="mb-3 text-sm text-muted">
-                Cotización autorizada por el cliente. Confirma el pago en mostrador y
-                envía a imprimir.
+                Cotización autorizada por el cliente. Revisa el archivo, confirma el pago
+                en mostrador y envía a imprimir.
               </p>
+              {previewAsset && (
+                <p className="mb-3 text-xs text-muted">
+                  Vista previa del archivo a imprimir arriba en{" "}
+                  <span className="text-foreground">{previewAsset.filename}</span>.
+                </p>
+              )}
               <AdminStaffAction orderId={order.id} mode="print" />
             </div>
           )}

@@ -22,6 +22,7 @@
 - [x] UI de cotización
 - [x] Confirmación cliente (autoriza cotización) + envío PrintNode desde admin + fallo/reintento staff
 - [x] Marcar listo / completado manual en admin (entrega en mostrador)
+- [x] Vista previa pre-upload (cliente) + revisión de archivo en admin antes de imprimir
 
 ### Extensión Phase 2 — Word (`.docx`)
 

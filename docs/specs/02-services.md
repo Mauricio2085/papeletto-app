@@ -22,6 +22,7 @@
 ### Salida
 
 - Desglose de precio para el cliente (autorización de cotización)
+- Vista previa del archivo **antes** de cotizar (cliente, en navegador) y **antes** de imprimir (staff, vía admin)
 - Print job id (PrintNode) gestionado por el staff
 
 ### Errores

@@ -5,6 +5,7 @@ import {
   standardPrintFormAction,
   type StandardPrintFormState,
 } from "@/app/(public)/impresion-estandar/actions";
+import { FileUploadPreview } from "@/components/file-upload-preview";
 import { formatCop } from "@/lib/format/currency";
 import { MAX_COPIES, MIN_COPIES } from "@/lib/print-standard/constants";
 
@@ -35,6 +36,8 @@ export function StandardPrintForm() {
             />
             <p className="text-xs text-muted">PDF o .txt · máximo 15 MB</p>
           </div>
+
+          <FileUploadPreview fileInputId="file" />
 
           <div className="space-y-2">
             <label htmlFor="copies" className="block text-sm font-medium text-foreground">
