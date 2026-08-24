@@ -16,10 +16,17 @@
 
 ## Phase 2 — Impresión estándar
 
-- [ ] Upload PDF + conteo de páginas
-- [ ] Estimación de páginas en archivos de texto
-- [ ] UI de cotización
+- [x] Upload PDF + conteo de páginas
+- [x] Estimación de páginas en archivos de texto
+- [x] UI de cotización
 - [ ] Envío PrintNode + fallo/reintento
+
+### Extensión Phase 2 — Word (`.docx`)
+
+- [ ] Aceptar upload `.docx` en validación y UI (sin `.doc` legacy)
+- [ ] Conversión servidor `.docx` → PDF (LibreOffice/Gotenberg o equivalente)
+- [ ] Conteo y cotización sobre PDF derivado; persistir `original` + `print_ready`
+- [ ] Mensajes de error claros si la conversión falla
 
 ## Phase 3 — Impresión especial
 

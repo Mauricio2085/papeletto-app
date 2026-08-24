@@ -4,7 +4,8 @@
 
 ### Entrada
 
-- Archivos: PDF preferido; texto plano (`.txt`) soportado
+- Archivos (MVP): PDF preferido; texto plano (`.txt`) soportado
+- Archivos (extensión Phase 2): **`.docx`** — Word moderno; **no** se soportará `.doc` (formato binario legacy, fuera de uso cotidiano)
 - Opciones: copias, color/B&amp;N (si la impresora lo soporta), duplex (opcional Phase 2)
 
 ### Procesamiento
@@ -25,6 +26,29 @@
 
 - PDF ilegible → rechazar con mensaje claro
 - Fallo PrintNode → `FAILED` + acción de reintento para staff
+
+### Extensión Phase 2 — Word (`.docx`)
+
+Muchos clientes llegan con documentos de Word. PrintNode imprime con fidelidad vía **PDF**, no enviando el `.docx` directo.
+
+**Flujo propuesto**
+
+1. Validar MIME/extensión (`.docx` únicamente).
+2. Convertir a PDF en servidor (LibreOffice headless, Gotenberg u otro servicio de conversión en el mismo host o contenedor).
+3. Contar páginas sobre el **PDF generado** (conteo real, misma lógica que PDF nativo).
+4. Cotizar y persistir pedido con dos assets:
+   - `original` — `.docx` subido por el cliente
+   - `print_ready` — PDF derivado usado para cotización e impresión
+5. Enviar a PrintNode solo el PDF `print_ready`.
+
+**Errores adicionales**
+
+- `.docx` corrupto o no convertible → rechazar con mensaje claro (“No pudimos abrir el Word; prueba guardar de nuevo o sube PDF”)
+- Timeout de conversión → `FAILED` con reintento staff
+
+**Fuera de alcance**
+
+- `.doc` (Word 97–2003): no soportado; el cliente debe guardar como `.docx` o exportar PDF
 
 ---
 
