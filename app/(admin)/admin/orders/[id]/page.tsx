@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdminPrintActions } from "@/components/admin-print-actions";
+import { AdminStaffAction } from "@/components/admin-staff-action";
 import { PaperCard } from "@/components/paper-card";
 import { formatDateTimeBogota } from "@/lib/format/datetime";
 import { formatCop } from "@/lib/format/currency";
+import {
+  canMarkOrderCompleted,
+  canMarkOrderReady,
+} from "@/lib/orders/fulfillment";
 import {
   canPrintStandardOrder,
   canRetryStandardPrint,
@@ -42,6 +46,9 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const displayAssets = visibleOrderAssets(order.assets);
   const showPrint = canPrintStandardOrder(order);
   const showRetry = canRetryStandardPrint(order);
+  const showReady = canMarkOrderReady(order);
+  const showCompleted = canMarkOrderCompleted(order);
+  const showFulfillment = showReady || showCompleted;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
@@ -160,7 +167,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 Cotización autorizada por el cliente. Confirma el pago en mostrador y
                 envía a imprimir.
               </p>
-              <AdminPrintActions orderId={order.id} mode="print" />
+              <AdminStaffAction orderId={order.id} mode="print" />
             </div>
           )}
 
@@ -204,7 +211,38 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 Hay un fallo de impresión. Puedes volver a enviar el archivo a la
                 impresora por defecto.
               </p>
-              <AdminPrintActions orderId={order.id} mode="retry" />
+              <AdminStaffAction orderId={order.id} mode="retry" />
+            </div>
+          )}
+        </PaperCard>
+      )}
+
+      {showFulfillment && (
+        <PaperCard className="space-y-4 p-6">
+          <div>
+            <h2 className="text-lg font-semibold">Entrega en mostrador</h2>
+            <p className="mt-1 text-sm text-muted">
+              Marca manualmente cuando el trabajo está listo para recoger y cuando el
+              cliente se lo llevó.
+            </p>
+          </div>
+
+          {showReady && (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-4">
+              <p className="mb-3 text-sm text-muted">
+                El pedido ya salió a impresora. Marca listo cuando esté revisado y
+                disponible para el cliente.
+              </p>
+              <AdminStaffAction orderId={order.id} mode="ready" />
+            </div>
+          )}
+
+          {showCompleted && (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-4">
+              <p className="mb-3 text-sm text-muted">
+                El cliente recogió el trabajo. Marca completado para cerrar el pedido.
+              </p>
+              <AdminStaffAction orderId={order.id} mode="completed" />
             </div>
           )}
         </PaperCard>

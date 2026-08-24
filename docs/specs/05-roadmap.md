@@ -21,6 +21,7 @@
 - [x] Estimación de páginas en archivos de texto
 - [x] UI de cotización
 - [x] Confirmación cliente (autoriza cotización) + envío PrintNode desde admin + fallo/reintento staff
+- [x] Marcar listo / completado manual en admin (entrega en mostrador)
 
 ### Extensión Phase 2 — Word (`.docx`)
 

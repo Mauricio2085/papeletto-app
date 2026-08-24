@@ -13,6 +13,7 @@ const QUICK_STATUSES: OrderStatus[] = [
   "CONFIRMED",
   "SENT_TO_PRINTER",
   "READY",
+  "COMPLETED",
   "FAILED",
 ];
 

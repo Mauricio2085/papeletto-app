@@ -16,7 +16,8 @@
 4. Persistir pedido + referencia al archivo (`QUOTED`).
 5. **Cliente** autoriza el valor cotizado → `CONFIRMED` (sin enviar a impresora).
 6. **Staff** en `/admin` confirma pago en mostrador y envía a PrintNode → `PROCESSING` → `SENT_TO_PRINTER`.
-7. Seguir estado: `QUOTED` → `CONFIRMED` → `SENT_TO_PRINTER` → … → `COMPLETED` | `FAILED`.
+7. **Staff** marca listo cuando el trabajo está para recoger → `READY`; completado al entregar → `COMPLETED`.
+8. Seguir estado: `QUOTED` → `CONFIRMED` → `SENT_TO_PRINTER` → `READY` → `COMPLETED` | `FAILED`.
 
 ### Salida
 
