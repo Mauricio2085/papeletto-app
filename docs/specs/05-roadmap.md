@@ -12,7 +12,8 @@
 - [x] Auth para admin/operador (Auth.js / NextAuth JWT + formulario `/login`)
 - [x] Prisma schema + seed de precios/impresoras (correr migrate contra tu DB)
 - [x] Abstracción de file storage (disco local MVP)
-- [ ] Listado de pedidos (admin) + máquina de estados
+- [x] Listado de pedidos (admin)
+- [ ] Máquina de estados de pedidos
 
 ## Phase 2 — Impresión estándar
 
