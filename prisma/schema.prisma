@@ -37,6 +37,22 @@ enum DocumentJobStatus {
   FAILED
 }
 
+enum StaffRole {
+  ADMIN
+  OPERATOR
+}
+
+model StaffUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String
+  role         StaffRole @default(OPERATOR)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
 model Customer {
   id        String   @id @default(cuid())
   name      String?

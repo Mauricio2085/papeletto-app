@@ -52,6 +52,10 @@ Browser (Next.js App Router)
 
 ```bash
 DATABASE_URL=   # local: postgresql://papeletto:papeletto@localhost:5432/papeletto?schema=public
+AUTH_SECRET=    # openssl rand -base64 32
+ADMIN_EMAIL=    # seed staff (dev)
+ADMIN_PASSWORD=
+ADMIN_NAME=
 PRINTNODE_API_KEY=
 PRINTNODE_DEFAULT_PRINTER_ID=
 N8N_WEBHOOK_CV_URL=

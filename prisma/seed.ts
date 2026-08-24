@@ -1,6 +1,7 @@
 import "dotenv/config";
+import { hash } from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, StaffRole } from "@prisma/client";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -18,6 +19,33 @@ const prices = [
   { key: "doc.cv", amountCents: 8000, unit: "document" },
   { key: "doc.derecho_peticion", amountCents: 10000, unit: "document" },
 ] as const;
+
+async function seedStaff() {
+  const email = (process.env.ADMIN_EMAIL ?? "admin@papeletto.local").toLowerCase();
+  const password = process.env.ADMIN_PASSWORD ?? "papeletto-admin";
+  const name = process.env.ADMIN_NAME ?? "Admin Papeletto";
+
+  const passwordHash = await hash(password, 12);
+
+  await prisma.staffUser.upsert({
+    where: { email },
+    update: {
+      name,
+      passwordHash,
+      role: StaffRole.ADMIN,
+      active: true,
+    },
+    create: {
+      email,
+      name,
+      passwordHash,
+      role: StaffRole.ADMIN,
+      active: true,
+    },
+  });
+
+  console.log(`Staff admin seeded: ${email}`);
+}
 
 async function main() {
   for (const price of prices) {
@@ -50,6 +78,8 @@ async function main() {
       },
     });
   }
+
+  await seedStaff();
 }
 
 main()
