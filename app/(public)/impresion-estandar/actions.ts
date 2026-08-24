@@ -4,13 +4,14 @@ import {
   MAX_COPIES,
   MIN_COPIES,
 } from "@/lib/print-standard/constants";
+import { confirmAndPrintStandardOrder } from "@/lib/print-standard/confirm-order";
 import { createStandardPrintQuoteOrder } from "@/lib/print-standard/create-quote-order";
 import {
   fileToBuffer,
   validateStandardPrintUpload,
 } from "@/lib/print-standard/validate";
 
-export type StandardPrintQuoteState =
+export type StandardPrintFormState =
   | {
       ok: true;
       orderId: string;
@@ -19,6 +20,11 @@ export type StandardPrintQuoteState =
       copies: number;
       unitPriceCents: number;
       totalCents: number;
+      confirmed?: boolean;
+      printStatus?: string;
+      printNodeJobId?: string | null;
+      dryRun?: boolean;
+      printError?: string;
     }
   | {
       ok: false;
@@ -34,10 +40,7 @@ function parseCopies(raw: FormDataEntryValue | null): number | { error: string }
   return value;
 }
 
-export async function quoteStandardPrintAction(
-  _prev: StandardPrintQuoteState,
-  formData: FormData,
-): Promise<StandardPrintQuoteState> {
+async function handleQuote(formData: FormData): Promise<StandardPrintFormState> {
   const file = formData.get("file");
   if (!(file instanceof File)) {
     return { ok: false, error: "Selecciona un archivo PDF o de texto." };
@@ -77,4 +80,50 @@ export async function quoteStandardPrintAction(
       error instanceof Error ? error.message : "No se pudo generar la cotización.";
     return { ok: false, error: message };
   }
+}
+
+async function handleConfirm(
+  prev: StandardPrintFormState,
+  formData: FormData,
+): Promise<StandardPrintFormState> {
+  if (!prev?.ok) {
+    return { ok: false, error: "No hay cotización para confirmar." };
+  }
+
+  const orderId = String(formData.get("orderId") ?? prev.orderId);
+  if (!orderId || orderId !== prev.orderId) {
+    return { ok: false, error: "Referencia de pedido inválida." };
+  }
+
+  try {
+    const result = await confirmAndPrintStandardOrder(orderId);
+
+    return {
+      ...prev,
+      confirmed: true,
+      printStatus: result.status,
+      printNodeJobId: result.printNodeJobId,
+      dryRun: result.dryRun,
+      printError: result.error,
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo confirmar el pedido.";
+    return {
+      ...prev,
+      confirmed: false,
+      printError: message,
+    };
+  }
+}
+
+export async function standardPrintFormAction(
+  prev: StandardPrintFormState,
+  formData: FormData,
+): Promise<StandardPrintFormState> {
+  const intent = String(formData.get("intent") ?? "quote");
+  if (intent === "confirm") {
+    return handleConfirm(prev, formData);
+  }
+  return handleQuote(formData);
 }

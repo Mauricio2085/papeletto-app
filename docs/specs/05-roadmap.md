@@ -13,14 +13,14 @@
 - [x] Prisma schema + seed de precios/impresoras (correr migrate contra tu DB)
 - [x] Abstracción de file storage (disco local MVP)
 - [x] Listado de pedidos (admin)
-- [ ] Máquina de estados de pedidos
+- [x] Máquina de estados de pedidos (transiciones + confirm/print/retry)
 
 ## Phase 2 — Impresión estándar
 
 - [x] Upload PDF + conteo de páginas
 - [x] Estimación de páginas en archivos de texto
 - [x] UI de cotización
-- [ ] Envío PrintNode + fallo/reintento
+- [x] Confirmación cliente + envío PrintNode + fallo/reintento staff
 
 ### Extensión Phase 2 — Word (`.docx`)
 

@@ -1,7 +1,7 @@
 /**
  * Local disk storage for MVP. Swap for S3-compatible later without changing callers.
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const STORAGE_ROOT = process.env.STORAGE_ROOT ?? path.join(process.cwd(), "storage");
@@ -18,4 +18,8 @@ export async function saveAssetBuffer(
 
 export function resolveAssetPath(storageKey: string): string {
   return path.join(STORAGE_ROOT, storageKey);
+}
+
+export async function readAssetBuffer(storageKey: string): Promise<Buffer> {
+  return readFile(resolveAssetPath(storageKey));
 }
