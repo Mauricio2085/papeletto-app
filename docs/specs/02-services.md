@@ -13,14 +13,15 @@
 1. Validar MIME/límites de tamaño.
 2. Contar páginas (conteo real en PDF; texto → estimación por chars/líneas por página).
 3. Cotizar: `pages × copies × unitPrice` (precio unitario desde config por papel/color).
-4. Persistir pedido + referencia al archivo.
-5. Enviar job a PrintNode con printer id y opciones.
-6. Seguir estado: `QUOTED` → `CONFIRMED` → `SENT_TO_PRINTER` → … → `COMPLETED` | `FAILED`.
+4. Persistir pedido + referencia al archivo (`QUOTED`).
+5. **Cliente** autoriza el valor cotizado → `CONFIRMED` (sin enviar a impresora).
+6. **Staff** en `/admin` confirma pago en mostrador y envía a PrintNode → `PROCESSING` → `SENT_TO_PRINTER`.
+7. Seguir estado: `QUOTED` → `CONFIRMED` → `SENT_TO_PRINTER` → … → `COMPLETED` | `FAILED`.
 
 ### Salida
 
-- Desglose de precio para el cliente
-- Print job id (PrintNode) para el staff
+- Desglose de precio para el cliente (autorización de cotización)
+- Print job id (PrintNode) gestionado por el staff
 
 ### Errores
 

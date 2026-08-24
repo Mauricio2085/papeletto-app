@@ -74,11 +74,7 @@ export function StandardPrintForm() {
       {state?.ok && (
         <div className="space-y-4 rounded-2xl border border-brand/30 bg-brand/5 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-bright">
-            {state.confirmed && !state.printError
-              ? "Pedido enviado"
-              : state.printError
-                ? "Error al imprimir"
-                : "Cotización lista"}
+            {state.confirmed ? "Cotización autorizada" : "Cotización lista"}
           </p>
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
@@ -111,29 +107,19 @@ export function StandardPrintForm() {
             </div>
           </dl>
 
-          {state.printError && (
+          {state.confirmError && (
             <p
               role="alert"
               className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
             >
-              {state.printError}
-              {state.printStatus === "FAILED"
-                ? " El staff puede reintentar desde el panel admin."
-                : null}
+              {state.confirmError}
             </p>
           )}
 
-          {state.confirmed && !state.printError && (
+          {state.confirmed && (
             <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-              {state.dryRun
-                ? "Confirmado en modo prueba (PRINTNODE_DRY_RUN). No se envió a una impresora real."
-                : "Confirmado y enviado a la impresora."}
-              {state.printNodeJobId ? (
-                <>
-                  {" "}
-                  Job: <span className="font-mono text-xs">{state.printNodeJobId}</span>
-                </>
-              ) : null}
+              Autorizaste el valor cotizado. En mostrador confirmarán el pago y
+              enviarán la impresión desde el panel.
             </p>
           )}
 
@@ -146,7 +132,7 @@ export function StandardPrintForm() {
                 disabled={pending}
                 className="w-full rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-bright disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
               >
-                {pending ? "Enviando…" : "Confirmar e imprimir"}
+                {pending ? "Confirmando…" : "Autorizar cotización"}
               </button>
             </form>
           )}

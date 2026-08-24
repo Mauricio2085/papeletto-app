@@ -22,8 +22,8 @@ export default function ImpresionEstandarPage() {
           </p>
           <h1 className="text-3xl font-bold sm:text-4xl">Cotiza tu impresión</h1>
           <p className="text-muted">
-            Sube un PDF o archivo de texto, revisa la cotización y confirma para
-            enviar a impresión.
+            Sube un PDF o archivo de texto, revisa la cotización y autoriza el valor.
+            En mostrador se confirma el pago y se imprime.
           </p>
         </div>
 

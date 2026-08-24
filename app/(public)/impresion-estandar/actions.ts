@@ -4,7 +4,7 @@ import {
   MAX_COPIES,
   MIN_COPIES,
 } from "@/lib/print-standard/constants";
-import { confirmAndPrintStandardOrder } from "@/lib/print-standard/confirm-order";
+import { confirmStandardPrintQuote } from "@/lib/print-standard/confirm-order";
 import { createStandardPrintQuoteOrder } from "@/lib/print-standard/create-quote-order";
 import {
   fileToBuffer,
@@ -21,10 +21,7 @@ export type StandardPrintFormState =
       unitPriceCents: number;
       totalCents: number;
       confirmed?: boolean;
-      printStatus?: string;
-      printNodeJobId?: string | null;
-      dryRun?: boolean;
-      printError?: string;
+      confirmError?: string;
     }
   | {
       ok: false;
@@ -96,23 +93,20 @@ async function handleConfirm(
   }
 
   try {
-    const result = await confirmAndPrintStandardOrder(orderId);
+    await confirmStandardPrintQuote(orderId);
 
     return {
       ...prev,
       confirmed: true,
-      printStatus: result.status,
-      printNodeJobId: result.printNodeJobId,
-      dryRun: result.dryRun,
-      printError: result.error,
+      confirmError: undefined,
     };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "No se pudo confirmar el pedido.";
+      error instanceof Error ? error.message : "No se pudo confirmar la cotización.";
     return {
       ...prev,
       confirmed: false,
-      printError: message,
+      confirmError: message,
     };
   }
 }

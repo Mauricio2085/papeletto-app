@@ -20,7 +20,7 @@
 - [x] Upload PDF + conteo de páginas
 - [x] Estimación de páginas en archivos de texto
 - [x] UI de cotización
-- [x] Confirmación cliente + envío PrintNode + fallo/reintento staff
+- [x] Confirmación cliente (autoriza cotización) + envío PrintNode desde admin + fallo/reintento staff
 
 ### Extensión Phase 2 — Word (`.docx`)
 

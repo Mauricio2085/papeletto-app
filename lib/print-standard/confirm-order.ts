@@ -6,16 +6,13 @@ import {
   type SubmitPrintResult,
 } from "@/lib/print-standard/submit-print";
 
-export type ConfirmAndPrintResult = SubmitPrintResult & {
-  confirmed: boolean;
-};
-
 /**
- * Client confirm: QUOTED → CONFIRMED → print submit.
+ * Client authorize: QUOTED → CONFIRMED only (no PrintNode).
  */
-export async function confirmAndPrintStandardOrder(
-  orderId: string,
-): Promise<ConfirmAndPrintResult> {
+export async function confirmStandardPrintQuote(orderId: string): Promise<{
+  orderId: string;
+  status: OrderStatus;
+}> {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) {
     throw new Error("Pedido no encontrado.");
@@ -29,13 +26,35 @@ export async function confirmAndPrintStandardOrder(
     );
   }
 
-  await transitionOrder(orderId, OrderStatus.CONFIRMED, OrderStatus.QUOTED);
-  const printResult = await submitStandardPrintJob(orderId);
+  const updated = await transitionOrder(
+    orderId,
+    OrderStatus.CONFIRMED,
+    OrderStatus.QUOTED,
+  );
 
-  return {
-    ...printResult,
-    confirmed: true,
-  };
+  return { orderId: updated.id, status: updated.status };
+}
+
+/**
+ * Staff print: CONFIRMED → PrintNode submit.
+ */
+export async function printStandardOrder(
+  orderId: string,
+): Promise<SubmitPrintResult> {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) {
+    throw new Error("Pedido no encontrado.");
+  }
+  if (order.type !== OrderType.PRINT_STANDARD) {
+    throw new Error("Este pedido no es de impresión estándar.");
+  }
+  if (order.status !== OrderStatus.CONFIRMED) {
+    throw new Error(
+      `Solo se pueden imprimir pedidos confirmados. Estado actual: ${order.status}.`,
+    );
+  }
+
+  return submitStandardPrintJob(orderId);
 }
 
 /**

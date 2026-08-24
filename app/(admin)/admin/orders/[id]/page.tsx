@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdminRetryPrintButton } from "@/components/admin-retry-print-button";
+import { AdminPrintActions } from "@/components/admin-print-actions";
 import { PaperCard } from "@/components/paper-card";
 import { formatDateTimeBogota } from "@/lib/format/datetime";
 import { formatCop } from "@/lib/format/currency";
-import { canRetryStandardPrint } from "@/lib/orders/can-retry";
+import {
+  canPrintStandardOrder,
+  canRetryStandardPrint,
+} from "@/lib/orders/can-retry";
 import { visibleOrderAssets } from "@/lib/orders/assets";
 import {
   ORDER_STATUS_BADGE_CLASS,
@@ -37,6 +40,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const metadata = parseOrderMetadata(order.metadata);
   const originalAsset = order.assets.find((asset) => asset.kind === "original");
   const displayAssets = visibleOrderAssets(order.assets);
+  const showPrint = canPrintStandardOrder(order);
   const showRetry = canRetryStandardPrint(order);
 
   return (
@@ -141,15 +145,24 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         </PaperCard>
       </div>
 
-      {(order.printJobs.length > 0 || showRetry) && (
+      {(showPrint || showRetry || order.printJobs.length > 0) && (
         <PaperCard className="space-y-4 p-6">
           <div>
             <h2 className="text-lg font-semibold">Envíos a impresora</h2>
             <p className="mt-1 text-sm text-muted">
-              Historial de intentos (logs). El reintento crea un envío nuevo; no edita
-              los anteriores.
+              El cliente autoriza la cotización; el staff envía a PrintNode desde aquí.
             </p>
           </div>
+
+          {showPrint && (
+            <div className="rounded-xl border border-brand/30 bg-brand/5 px-4 py-4">
+              <p className="mb-3 text-sm text-muted">
+                Cotización autorizada por el cliente. Confirma el pago en mostrador y
+                envía a imprimir.
+              </p>
+              <AdminPrintActions orderId={order.id} mode="print" />
+            </div>
+          )}
 
           {order.printJobs.length > 0 ? (
             <ul className="space-y-3">
@@ -181,9 +194,9 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : !showPrint ? (
             <p className="text-sm text-muted">Aún no hay envíos registrados.</p>
-          )}
+          ) : null}
 
           {showRetry && (
             <div className="border-t border-line pt-4">
@@ -191,7 +204,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 Hay un fallo de impresión. Puedes volver a enviar el archivo a la
                 impresora por defecto.
               </p>
-              <AdminRetryPrintButton orderId={order.id} />
+              <AdminPrintActions orderId={order.id} mode="retry" />
             </div>
           )}
         </PaperCard>

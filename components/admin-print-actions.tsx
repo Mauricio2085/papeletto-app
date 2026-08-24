@@ -3,28 +3,37 @@
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import {
+  printOrderAction,
   retryPrintOrderAction,
-  type RetryPrintState,
+  type StaffPrintState,
 } from "@/app/(admin)/admin/orders/actions";
 
-const initialState: RetryPrintState = null;
+const initialState: StaffPrintState = null;
 
-type AdminRetryPrintButtonProps = {
+type AdminPrintActionsProps = {
   orderId: string;
+  mode: "print" | "retry";
 };
 
-export function AdminRetryPrintButton({ orderId }: AdminRetryPrintButtonProps) {
+export function AdminPrintActions({ orderId, mode }: AdminPrintActionsProps) {
   const router = useRouter();
-  const [state, formAction, pending] = useActionState(
-    retryPrintOrderAction,
-    initialState,
-  );
+  const action = mode === "print" ? printOrderAction : retryPrintOrderAction;
+  const [state, formAction, pending] = useActionState(action, initialState);
 
   useEffect(() => {
     if (state?.ok) {
       router.refresh();
     }
   }, [state, router]);
+
+  const label =
+    mode === "print"
+      ? pending
+        ? "Enviando…"
+        : "Imprimir"
+      : pending
+        ? "Reintentando…"
+        : "Reintentar impresión";
 
   return (
     <div className="space-y-3">
@@ -35,13 +44,13 @@ export function AdminRetryPrintButton({ orderId }: AdminRetryPrintButtonProps) {
           disabled={pending}
           className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-bright disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {pending ? "Reintentando…" : "Reintentar impresión"}
+          {label}
         </button>
       </form>
 
       {state?.ok && (
         <p className="text-sm text-emerald-300">
-          Reintento enviado
+          {mode === "print" ? "Enviado a impresora" : "Reintento enviado"}
           {state.dryRun ? " (dry-run)" : ""}. Estado: {state.status}
           {state.printNodeJobId ? (
             <>

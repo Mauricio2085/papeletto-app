@@ -17,9 +17,10 @@ Customer uploads PDF or text → count pages → quote → confirm → PrintNode
    - Text: estimate pages from lines/chars per page (document constant in config)
 3. Load unit price from `PriceConfig` (e.g. B&W A4 per page).
 4. Quote: `pages * copies * unitPriceCents`.
-5. Create `Order` (`PRINT_STANDARD`) + `Asset` (`original`) + pricing snapshot.
-6. On confirm: create `PrintJob`, call PrintNode, store remote id.
-7. Map failures to `FAILED` + `lastError`; expose staff retry.
+5. Create `Order` (`PRINT_STANDARD`) + `Asset` (`original`) + pricing snapshot (`QUOTED`).
+6. Client authorizes quote → `CONFIRMED` (no PrintNode).
+7. Staff prints from admin → create `PrintJob`, call PrintNode, store remote id.
+8. Map failures to `FAILED` + `lastError`; expose staff retry.
 
 ## Do / Don't
 
