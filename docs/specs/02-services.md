@@ -32,26 +32,34 @@
 
 ### Extensión Phase 2 — Word (`.docx`)
 
-Muchos clientes llegan con documentos de Word. PrintNode imprime con fidelidad vía **PDF**, no enviando el `.docx` directo.
+Muchos clientes del público (poco tech) llegan con Word. PrintNode imprime con fidelidad vía **PDF**, no enviando el `.docx` directo.
+
+**Infra (decidido)**
+
+- Convertidor: **Gotenberg** (LibreOffice) en la **misma Lightsail 4 GB** que Papeletto-app (Compose, red interna).
+- No usar la instancia n8n para esta conversión (aislar CV/async de cotización síncrona).
+- Env: `GOTENBERG_URL` solo en servidor.
 
 **Flujo propuesto**
 
 1. Validar MIME/extensión (`.docx` únicamente).
-2. Convertir a PDF en servidor (LibreOffice headless, Gotenberg u otro servicio de conversión en el mismo host o contenedor).
-3. Contar páginas sobre el **PDF generado** (conteo real, misma lógica que PDF nativo).
+2. POST del archivo a Gotenberg → PDF.
+3. Contar páginas sobre el **PDF generado** (`pdf-lib`, misma lógica que PDF nativo).
 4. Cotizar y persistir pedido con dos assets:
    - `original` — `.docx` subido por el cliente
-   - `print_ready` — PDF derivado usado para cotización e impresión
+   - `print_ready` — PDF derivado usado para cotización, preview admin e impresión
 5. Enviar a PrintNode solo el PDF `print_ready`.
+6. UI: mensaje “Convirtiendo Word…” durante la conversión (segundos).
 
 **Errores adicionales**
 
 - `.docx` corrupto o no convertible → rechazar con mensaje claro (“No pudimos abrir el Word; prueba guardar de nuevo o sube PDF”)
-- Timeout de conversión → `FAILED` con reintento staff
+- Timeout / Gotenberg caído → error claro; staff puede pedir PDF o reintentar cotización
 
 **Fuera de alcance**
 
 - `.doc` (Word 97–2003): no soportado; el cliente debe guardar como `.docx` o exportar PDF
+- Preview HTML aproximado del Word en el navegador: no requerido; preview del PDF convertido en admin sí
 
 ---
 

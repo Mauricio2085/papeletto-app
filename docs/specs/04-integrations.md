@@ -27,6 +27,29 @@ Enviar archivos print-ready a impresoras físicas gestionadas por PrintNode.
 
 ---
 
+## Gotenberg (conversión `.docx` → PDF)
+
+### Propósito
+
+Convertir Word moderno a PDF print-ready para impresión estándar, con fidelidad aceptable para cotización e PrintNode.
+
+### Reglas
+
+- Módulo solo servidor (ej. `lib/print-standard/docx-to-pdf.ts` o `lib/gotenberg/`)
+- URL vía `GOTENBERG_URL` (Compose: `http://gotenberg:3000`)
+- **No** exponer el puerto de Gotenberg a Internet
+- Producción MVP: misma Lightsail 4 GB que Papeletto-app (ver `01-architecture.md`)
+- n8n **no** orquesta esta conversión en el happy path (cotización síncrona)
+
+### Operación típica
+
+1. Recibir buffer `.docx` validado
+2. POST multipart a Gotenberg LibreOffice convert
+3. Recibir PDF; persistir como `Asset` `print_ready`
+4. Fallos HTTP/timeout → mensaje al cliente; no marcar pedido cotizado a medias sin asset usable
+
+---
+
 ## n8n
 
 ### Propósito

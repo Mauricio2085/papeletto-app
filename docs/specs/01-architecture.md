@@ -10,6 +10,7 @@
 | ORM | Prisma 7 (`prisma.config.ts` para DB URL; adapter `pg` en runtime) |
 | Automatizaciones | n8n (CV, derechos de petición, otros flujos complejos) |
 | Impresión | PrintNode API |
+| Conversión Word (`.docx` → PDF) | **Gotenberg** (LibreOffice) en la misma instancia de la app |
 | Gestor de paquetes | **pnpm** únicamente |
 
 ## Flujo de alto nivel
@@ -22,21 +23,53 @@ Browser (Next.js App Router)
     │       ├─ Prisma → PostgreSQL
     │       ├─ File storage (local / compatible S3; definir en Phase 1)
     │       ├─ PrintNode client → impresoras
+    │       ├─ Gotenberg (Docker, red interna) → .docx → PDF
     │       └─ n8n webhooks → CV / derecho de petición / pipelines especiales
     │
     └─ Static assets + Tailwind UI
 ```
+
+## Despliegue producción (MVP tienda) — Amazon Lightsail
+
+### Decisión
+
+Una sola instancia **Lightsail Linux ~4 GB RAM / 2 vCPU** (~**USD 24/mes** plan estándar con IPv4; confirmar en [precios Lightsail](https://aws.amazon.com/lightsail/pricing/)) alojando:
+
+| Proceso | Rol |
+|---------|-----|
+| Next.js (Papeletto-app) | App pública + admin + server actions |
+| PostgreSQL | Docker en la misma instancia (MVP) |
+| **Gotenberg** | Conversión `.docx` → PDF; **solo red interna**, sin puerto público |
+| Storage local | Disco de la instancia (`STORAGE_ROOT`) |
+
+n8n **no** corre aquí: instancia **Papeletto-n8n** aparte cuando arranque Phase 4. Cotización Word es síncrona vía Gotenberg en la app.
+
+### Red / seguridad
+
+- Firewall: solo **80/443** (+ SSH restringido) hacia la app.
+- Gotenberg sin publish a Internet; Next.js usa `GOTENBERG_URL=http://gotenberg:3000`.
+- Secretos solo en env de servidor.
+
+### Recursos y UX
+
+- Word **ocasional** (público poco tech); una conversión a la vez.
+- UI: “Convirtiendo Word…”; timeouts de server action elevados.
+
+### Compose
+
+`docker-compose.yml`: servicios `db` + `gotenberg` (+ app si se containeriza). Mismo patrón en Lightsail.
 
 ## Límites de módulos
 
 | Módulo | Responsabilidad |
 |--------|----------------|
 | `orders` | Ciclo de vida del pedido, pricing snapshot, máquina de estados |
-| `print-standard` | Conteo de páginas PDF/texto, cotización, envío a PrintNode |
+| `print-standard` | Conteo PDF/texto/`.docx` (vía Gotenberg), cotización, envío a PrintNode |
 | `print-special` | Layout, resize, compresión &lt;2MB, envío a impresión |
 | `documents/cv` | Formulario → n8n → almacenamiento de artefactos |
 | `documents/derecho-peticion` | Formulario → n8n → almacenamiento de artefactos |
 | `integrations/printnode` | Wrapper fino de API + reintentos |
+| `integrations/gotenberg` | Cliente HTTP `.docx` → PDF (servidor) |
 | `integrations/n8n` | Cliente webhook + callbacks firmados |
 | `admin` | Precios, impresoras, trabajos fallidos |
 
@@ -58,6 +91,7 @@ ADMIN_PASSWORD=
 ADMIN_NAME=
 PRINTNODE_API_KEY=
 PRINTNODE_DEFAULT_PRINTER_ID=
+GOTENBERG_URL=              # ej. http://gotenberg:3000 (solo servidor)
 N8N_WEBHOOK_CV_URL=
 N8N_WEBHOOK_DERECHO_PETICION_URL=
 N8N_WEBHOOK_SECRET=
@@ -82,5 +116,6 @@ pnpm db:seed
 
 ## Notas de despliegue
 
-- Preferir runtime Node.js en rutas de PrintNode/procesamiento de archivos (no Edge) salvo que se demuestre seguro.
-- Secretos solo en env de servidor; nunca exponer claves de PrintNode/n8n al cliente.
+- Preferir runtime Node.js en rutas de PrintNode/Gotenberg/procesamiento de archivos (no Edge) salvo que se demuestre seguro.
+- Secretos solo en env de servidor; nunca exponer claves de PrintNode/n8n ni `GOTENBERG_URL` al cliente.
+- Gotenberg: no abrir su puerto en el firewall de Lightsail.
