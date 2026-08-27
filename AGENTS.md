@@ -13,13 +13,13 @@ Servicios principales: impresión estándar, impresión especial (export web baj
 
 ```bash
 pnpm install
-pnpm db:up
+pnpm infra:up    # Postgres + Gotenberg (o pnpm db:up solo DB)
 pnpm db:migrate
 pnpm db:seed
 pnpm dev
 ```
 
-Postgres de desarrollo vía `docker-compose.yml` (`pnpm db:up`). Credenciales en `.env.example`.
+Infra local vía `docker-compose.yml` (`db` + `gotenberg`). Credenciales y `GOTENBERG_URL` en `.env.example`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

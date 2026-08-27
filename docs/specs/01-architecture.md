@@ -57,7 +57,16 @@ n8n **no** corre aquí: instancia **Papeletto-n8n** aparte cuando arranque Phase
 
 ### Compose
 
-`docker-compose.yml`: servicios `db` + `gotenberg` (+ app si se containeriza). Mismo patrón en Lightsail.
+`docker-compose.yml` incluye `db` + `gotenberg`.
+
+- Local / Lightsail con Next en el host: puerto **solo** `127.0.0.1:3001→3000`; `GOTENBERG_URL=http://127.0.0.1:3001`
+- Si la app corre en la misma red Compose: `GOTENBERG_URL=http://gotenberg:3000` (sin exponer el puerto públicamente)
+
+```bash
+pnpm infra:up    # db + gotenberg
+pnpm gotenberg:up
+pnpm gotenberg:logs
+```
 
 ## Límites de módulos
 

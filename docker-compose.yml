@@ -18,5 +18,26 @@ services:
       retries: 10
       start_period: 10s
 
+  # LibreOffice PDF conversion for .docx (Phase 2 extension).
+  # Bound to 127.0.0.1 only — not reachable from the public internet.
+  # Next.js on the host: GOTENBERG_URL=http://127.0.0.1:3001
+  # Next.js in the same Compose network: GOTENBERG_URL=http://gotenberg:3000
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: papeletto-gotenberg
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    command:
+      - "gotenberg"
+      - "--api-timeout=120s"
+      - "--libreoffice-restart-after=10"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 volumes:
   papeletto_pg_data:
