@@ -40,7 +40,7 @@ function parseCopies(raw: FormDataEntryValue | null): number | { error: string }
 async function handleQuote(formData: FormData): Promise<StandardPrintFormState> {
   const file = formData.get("file");
   if (!(file instanceof File)) {
-    return { ok: false, error: "Selecciona un archivo PDF o de texto." };
+    return { ok: false, error: "Selecciona un archivo PDF, .txt o Word (.docx)." };
   }
 
   const copiesResult = parseCopies(formData.get("copies"));

@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { OrderStatus, OrderType } from "@prisma/client";
+import { convertDocxToPdf } from "@/lib/gotenberg/client";
 import { prisma } from "@/lib/prisma";
-import { countPages } from "@/lib/print-standard/page-count";
+import { isDocxMime } from "@/lib/print-standard/constants";
+import { countPages, countPdfPages } from "@/lib/print-standard/page-count";
 import {
   calculateQuote,
   getUnitPriceCents,
@@ -27,7 +29,18 @@ export type CreateQuoteResult = {
 export async function createStandardPrintQuoteOrder(
   input: CreateQuoteInput,
 ): Promise<CreateQuoteResult> {
-  const pageCount = await countPages(input.buffer, input.mimeType);
+  let pageCount: number;
+  let printReadyPdf: Buffer | null = null;
+  let printReadyFilename: string | null = null;
+
+  if (isDocxMime(input.mimeType)) {
+    printReadyPdf = await convertDocxToPdf(input.buffer, input.filename);
+    pageCount = await countPdfPages(printReadyPdf);
+    printReadyFilename = input.filename.replace(/\.docx$/i, "") + ".pdf";
+  } else {
+    pageCount = await countPages(input.buffer, input.mimeType);
+  }
+
   const unitPriceCents = await getUnitPriceCents();
   const quote = calculateQuote(pageCount, input.copies, unitPriceCents);
   const pricingSnapshot = quoteToSnapshot(quote);
@@ -47,10 +60,10 @@ export async function createStandardPrintQuoteOrder(
     },
   });
 
-  const storageKey = `orders/${order.id}/${randomUUID()}-${input.filename}`;
+  const originalKey = `orders/${order.id}/${randomUUID()}-${input.filename}`;
 
   try {
-    await saveAssetBuffer(storageKey, input.buffer);
+    await saveAssetBuffer(originalKey, input.buffer);
     await prisma.asset.create({
       data: {
         orderId: order.id,
@@ -58,10 +71,26 @@ export async function createStandardPrintQuoteOrder(
         filename: input.filename,
         mimeType: input.mimeType,
         byteSize: input.byteSize,
-        storageKey,
+        storageKey: originalKey,
         pageCount,
       },
     });
+
+    if (printReadyPdf && printReadyFilename) {
+      const printKey = `orders/${order.id}/${randomUUID()}-${printReadyFilename}`;
+      await saveAssetBuffer(printKey, printReadyPdf);
+      await prisma.asset.create({
+        data: {
+          orderId: order.id,
+          kind: "print_ready",
+          filename: printReadyFilename,
+          mimeType: "application/pdf",
+          byteSize: printReadyPdf.byteLength,
+          storageKey: printKey,
+          pageCount,
+        },
+      });
+    }
   } catch (error) {
     await prisma.order.delete({ where: { id: order.id } }).catch(() => undefined);
     throw error;

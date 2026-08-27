@@ -29,10 +29,10 @@
 **Infra (decidido):** Gotenberg en la misma Lightsail **4 GB** que Papeletto-app (Docker Compose, red interna). n8n aparte / Phase 4.
 
 - [x] Añadir servicio `gotenberg` a `docker-compose.yml` + `GOTENBERG_URL` en `.env.example`
-- [ ] Aceptar upload `.docx` en validación y UI (sin `.doc` legacy)
-- [ ] Cliente HTTP servidor → Gotenberg; persistir `original` + `print_ready`
-- [ ] Conteo y cotización sobre PDF derivado; UX “Convirtiendo Word…”
-- [ ] Mensajes de error claros si la conversión falla / Gotenberg caído
+- [x] Aceptar upload `.docx` en validación y UI (sin `.doc` legacy)
+- [x] Cliente HTTP servidor → Gotenberg; persistir `original` + `print_ready`
+- [x] Conteo y cotización sobre PDF derivado; UX “Convirtiendo Word…”
+- [x] Mensajes de error claros si la conversión falla / Gotenberg caído
 - [ ] Checklist despliegue Lightsail 4 GB (firewall, Compose, sin puerto Gotenberg público)
 
 ## Phase 3 — Impresión especial

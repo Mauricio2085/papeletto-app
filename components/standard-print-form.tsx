@@ -30,11 +30,11 @@ export function StandardPrintForm() {
               id="file"
               name="file"
               type="file"
-              accept=".pdf,.txt,application/pdf,text/plain"
+              accept=".pdf,.txt,.docx,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               required
               className="block w-full cursor-pointer rounded-xl border border-line bg-background px-4 py-3 text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-brand/15 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-bright"
             />
-            <p className="text-xs text-muted">PDF o .txt · máximo 15 MB</p>
+            <p className="text-xs text-muted">PDF, .txt o Word (.docx) · máximo 15 MB</p>
           </div>
 
           <FileUploadPreview fileInputId="file" />
@@ -69,8 +69,13 @@ export function StandardPrintForm() {
             disabled={pending}
             className="w-full rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-bright disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
           >
-            {pending ? "Calculando…" : "Calcular cotización"}
+            {pending ? "Procesando…" : "Calcular cotización"}
           </button>
+          {pending && (
+            <p className="text-xs text-muted">
+              Si subiste Word, estamos convirtiéndolo a PDF para contar páginas…
+            </p>
+          )}
         </form>
       )}
 

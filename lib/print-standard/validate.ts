@@ -1,8 +1,10 @@
 import path from "node:path";
 import {
+  LEGACY_DOC_EXTENSION,
   STANDARD_PRINT_ALLOWED_EXTENSIONS,
   STANDARD_PRINT_ALLOWED_MIME,
   STANDARD_PRINT_MAX_BYTES,
+  resolveUploadMime,
 } from "@/lib/print-standard/constants";
 
 export type ValidatedUpload = {
@@ -16,7 +18,7 @@ export function validateStandardPrintUpload(
   file: File | null,
 ): ValidatedUpload | { error: string } {
   if (!file || file.size === 0) {
-    return { error: "Selecciona un archivo PDF o de texto." };
+    return { error: "Selecciona un archivo PDF, .txt o Word (.docx)." };
   }
 
   if (file.size > STANDARD_PRINT_MAX_BYTES) {
@@ -24,11 +26,18 @@ export function validateStandardPrintUpload(
   }
 
   const ext = path.extname(file.name).toLowerCase();
-  if (!STANDARD_PRINT_ALLOWED_EXTENSIONS.has(ext)) {
-    return { error: "Solo se aceptan archivos PDF o .txt." };
+  if (ext === LEGACY_DOC_EXTENSION) {
+    return {
+      error:
+        "No se aceptan archivos .doc (Word antiguo). Guárdalo como .docx o exporta PDF.",
+    };
   }
 
-  const mimeType = file.type || (ext === ".pdf" ? "application/pdf" : "text/plain");
+  if (!STANDARD_PRINT_ALLOWED_EXTENSIONS.has(ext)) {
+    return { error: "Solo se aceptan PDF, .txt o .docx (Word)." };
+  }
+
+  const mimeType = resolveUploadMime(file.name, file.type || "");
   if (!STANDARD_PRINT_ALLOWED_MIME.has(mimeType)) {
     return { error: "Tipo de archivo no permitido." };
   }

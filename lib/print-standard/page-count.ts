@@ -1,5 +1,8 @@
 import { PDFDocument } from "pdf-lib";
-import { TEXT_CHARS_PER_PAGE } from "@/lib/print-standard/constants";
+import {
+  TEXT_CHARS_PER_PAGE,
+  isDocxMime,
+} from "@/lib/print-standard/constants";
 
 export async function countPdfPages(buffer: Buffer): Promise<number> {
   try {
@@ -22,6 +25,11 @@ export function estimateTextPages(text: string): number {
 export async function countPages(buffer: Buffer, mimeType: string): Promise<number> {
   if (mimeType === "application/pdf") {
     return countPdfPages(buffer);
+  }
+  if (isDocxMime(mimeType)) {
+    throw new Error(
+      "Los archivos Word deben convertirse a PDF antes de contar páginas.",
+    );
   }
   const text = buffer.toString("utf8");
   return estimateTextPages(text);

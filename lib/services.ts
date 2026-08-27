@@ -19,7 +19,7 @@ export const services: ServiceAvailability[] = [
     key: "impresion-estandar",
     href: "/impresion-estandar",
     title: "Impresión estándar",
-    description: "Sube PDF o texto, calcula hojas y envía a imprimir.",
+    description: "Sube PDF, texto o Word (.docx), calcula hojas y envía a imprimir.",
     icon: "print",
     available: true,
   },
