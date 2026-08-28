@@ -35,9 +35,19 @@
 - [x] Mensajes de error claros si la conversión falla / Gotenberg caído
 - [ ] Checklist despliegue Lightsail 4 GB (firewall, Compose, sin puerto Gotenberg público)
 
+### Extensión Phase 2 — Carta y oficio
+
+Alineación con operación real (dos bandejas). Spec: [06-paper-sizes.md](06-paper-sizes.md).
+
+- [ ] Catálogo `lib/print/paper-sizes.ts` (puntos PDF, detección MediaBox)
+- [ ] Selector cliente carta/oficio + advertencia si PDF no coincide
+- [ ] Precios seed `print.bw.carta.page` / `print.bw.oficio.page` (migrar desde `a4`)
+- [ ] `text-to-pdf` y cotización según hoja elegida
+- [ ] Badge carta/oficio en admin (listado + detalle)
+
 ## Phase 3 — Impresión especial
 
-- [ ] Catálogo de tamaños + presets de layout
+- [ ] Catálogo de presets de layout + hoja carta/oficio obligatoria
 - [ ] Generación print-ready
 - [ ] Compresor web-safe &lt;2MB
 - [ ] Envío PrintNode para trabajos especiales

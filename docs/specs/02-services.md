@@ -1,19 +1,23 @@
 # Especificación de servicios
 
+> Tamaños de hoja **carta** y **oficio**: ver [06-paper-sizes.md](06-paper-sizes.md).
+
 ## 1. Impresión estándar
 
 ### Entrada
 
 - Archivos (MVP): PDF preferido; texto plano (`.txt`) soportado
 - Archivos (extensión Phase 2): **`.docx`** — Word moderno; **no** se soportará `.doc` (formato binario legacy, fuera de uso cotidiano)
+- **Tamaño de hoja (obligatorio):** **carta** u **oficio** — la impresora solo tiene esas dos bandejas
 - Opciones: copias, color/B&amp;N (si la impresora lo soporta), duplex (opcional Phase 2)
 
 ### Procesamiento
 
 1. Validar MIME/límites de tamaño.
-2. Contar páginas (conteo real en PDF; texto → estimación por chars/líneas por página).
-3. Cotizar: `pages × copies × unitPrice` (precio unitario desde config por papel/color).
-4. Persistir pedido + referencia al archivo (`QUOTED`).
+2. Cliente elige **carta** u **oficio**; si hay PDF (o PDF derivado de Word), **detectar** tamaño y preseleccionar; **advertir** si no coincide con la elección.
+3. Contar páginas (conteo real en PDF; texto → estimación por chars/líneas según hoja elegida).
+4. Cotizar: `pages × copies × unitPrice` (precio desde `print.{color}.{carta|oficio}.page`).
+5. Persistir pedido + `metadata.paperSize` + referencia al archivo (`QUOTED`).
 5. **Cliente** autoriza el valor cotizado → `CONFIRMED` (sin enviar a impresora).
 6. **Staff** en `/admin` confirma pago en mostrador y envía a PrintNode → `PROCESSING` → `SENT_TO_PRINTER`.
 7. **Staff** marca listo cuando el trabajo está para recoger → `READY`; completado al entregar → `COMPLETED`.
@@ -29,6 +33,16 @@
 
 - PDF ilegible → rechazar con mensaje claro
 - Fallo PrintNode → `FAILED` + acción de reintento para staff
+- Archivo carta/oficio vs elección distinta → advertencia en UI (no error silencioso)
+
+### Alineación carta/oficio (pendiente implementación)
+
+El MVP inicial cotizó con clave `print.bw.a4.page` y texto→PDF en dimensiones A4. Pendiente:
+
+- Selector cliente + detección PDF + metadata `paperSize`
+- Precios seed `print.bw.carta.page` / `print.bw.oficio.page` (y color)
+- `text-to-pdf` según hoja elegida (612×792 o 612×1008)
+- Badge carta/oficio en admin antes de imprimir
 
 ### Extensión Phase 2 — Word (`.docx`)
 
@@ -68,23 +82,25 @@ Muchos clientes del público (poco tech) llegan con Word. PrintNode imprime con 
 ### Entrada
 
 - Imágenes (JPEG/PNG/WebP) y/o documentos
-- Tamaño de impresión objetivo desde catálogo fijo (ej. 10×15, A4, carta — definir en pricing config)
+- **Tamaño de hoja (obligatorio):** **carta** u **oficio** — canvas del PDF print-ready
+- Preset de **layout/foto** desde catálogo fijo (ej. foto 10×15 en hoja carta, grid 4-up en oficio — ver `PriceConfig` `special.*`)
 - Opcional: preset de export para plataforma (público/comercial, máx. **&lt;2MB**)
 
 ### Procesamiento
 
 1. Validar archivos.
-2. Organizar en layout estándar (grid / single / multi-up).
-3. Producir PDF/imagen **print-ready** al tamaño físico/DPI objetivo.
-4. Producir export **web-safe**: resize + compresión hasta **&lt; 2MB** (preferir escalera de calidad, luego dimensiones).
-5. Crear pedido; enviar asset print-ready a PrintNode.
-6. Guardar/descargar asset web-safe para el cliente.
+2. Cliente elige **carta** u **oficio** y preset de layout del catálogo.
+3. Organizar en layout estándar (grid / single / multi-up) sobre la hoja elegida.
+4. Producir PDF **print-ready** con MediaBox carta u oficio y DPI objetivo (ej. 300 para foto).
+5. Producir export **web-safe**: resize + compresión hasta **&lt; 2MB** (preferir escalera de calidad, luego dimensiones).
+6. Crear pedido con `metadata.paperSize` y preset; enviar asset print-ready a PrintNode (staff).
+7. Guardar/descargar asset web-safe para el cliente.
 
 ### Salida
 
-- Archivo print-ready (interno / impresora)
+- Archivo print-ready (interno / impresora; página carta u oficio)
 - Archivo web-safe (&lt;2MB) para plataformas
-- Precio según tamaño × cantidad (config)
+- Precio según preset del catálogo × cantidad (`special.{preset}`); hoja en metadata para operación
 
 ---
 

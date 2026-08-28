@@ -111,7 +111,7 @@ model DocumentJob {
 
 model PriceConfig {
   id        String   @id @default(cuid())
-  key       String   @unique // ej. print.bw.a4.page
+  key       String   @unique // ej. print.bw.carta.page, special.10x15
   amountCents Int
   unit      String   // page | copy | size
   active    Boolean  @default(true)
@@ -127,8 +127,30 @@ model PrinterConfig {
 }
 ```
 
+## Metadata de pedido (JSON)
+
+Campos comunes en `Order.metadata` para impresión:
+
+| Campo | Tipo | Servicios | Descripción |
+|-------|------|-----------|-------------|
+| `paperSize` | `"carta" \| "oficio"` | estándar, especial | Hoja elegida por el cliente |
+| `detectedPaperSize` | `"carta" \| "oficio"` | estándar | Tamaño detectado en PDF (si aplica) |
+| `paperSizeMismatch` | `boolean` | estándar | `true` si elección ≠ detección |
+| `filename`, `copies`, `mimeType` | — | estándar | Ya en uso |
+| `layoutPreset` | `string` | especial | Clave de catálogo (ej. `10x15_single`) |
+
+`pricingSnapshot` incluye `paperSize` y `priceKey` (ej. `print.bw.carta.page`).
+
 ## Reglas de pricing (MVP)
 
-- Impresión estándar: `pageCount * copies * price(print.{color}.{size}.page)`
-- Impresión especial: `quantity * price(special.{size})`
+- Impresión estándar: `pageCount * copies * price(print.{color}.{carta|oficio}.page)`
+- Impresión especial: `quantity * price(special.{preset})` (hoja en metadata; catálogo en [06-paper-sizes.md](06-paper-sizes.md))
 - Generación de documentos: tarifa fija `price(doc.cv)` / `price(doc.derecho_peticion)` (+ add-on de impresión opcional)
+
+### Seed de precios (objetivo)
+
+Reemplazar claves legacy `print.*.a4.page` por:
+
+- `print.bw.carta.page`, `print.bw.oficio.page`
+- `print.color.carta.page`, `print.color.oficio.page`
+- `special.10x15`, `special.carta` / presets según catálogo Phase 3

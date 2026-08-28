@@ -18,7 +18,9 @@ Enviar archivos print-ready a impresoras físicas gestionadas por PrintNode.
 
 1. Listar impresoras (sync admin)
 2. Enviar print job (PDF / content URI o base64 según API)
-3. Poll o webhook de estado si existe; si no, refresh del staff + dashboard PrintNode
+3. PDF con **MediaBox carta u oficio** alineado a `Order.metadata.paperSize` (ver [06-paper-sizes.md](06-paper-sizes.md))
+4. Staff carga bandeja física carta u oficio según el pedido
+5. Poll o webhook de estado si existe; si no, refresh del staff + dashboard PrintNode
 
 ### Seguridad
 

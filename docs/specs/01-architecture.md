@@ -73,6 +73,7 @@ pnpm gotenberg:logs
 | Módulo | Responsabilidad |
 |--------|----------------|
 | `orders` | Ciclo de vida del pedido, pricing snapshot, máquina de estados |
+| `print` (shared) | Catálogo carta/oficio, detección PDF, labels UI |
 | `print-standard` | Conteo PDF/texto/`.docx` (vía Gotenberg), cotización, envío a PrintNode |
 | `print-special` | Layout, resize, compresión &lt;2MB, envío a impresión |
 | `documents/cv` | Formulario → n8n → almacenamiento de artefactos |

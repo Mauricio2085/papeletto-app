@@ -6,18 +6,23 @@ alwaysApply: false
 
 # Print services
 
+> Tamaños de hoja: **carta** y **oficio** only. See `docs/specs/06-paper-sizes.md`.
+
 ## Impresión estándar
 
-- Accept PDF and text; compute page count before quoting.
-- Quote formula: `pages × copies × unitPrice` from `PriceConfig`.
-- After confirm → create `PrintJob` → PrintNode; persist remote job id.
+- Accept PDF, text, and `.docx`; compute page count before quoting.
+- Customer must pick **carta** or **oficio**; detect from PDF MediaBox when possible; warn on mismatch.
+- Quote formula: `pages × copies × unitPrice` from `PriceConfig` (`print.{color}.{carta|oficio}.page`).
+- PDF print-ready and text→PDF must use page dimensions matching `paperSize`.
+- After confirm → staff PrintNode from admin; persist remote job id.
 
 ## Impresión especial
 
+- Customer picks **carta** or **oficio** (required) plus layout preset from fixed catalog.
 - Always produce two outputs when platform export is requested:
-  1. print-ready (physical size/DPI)
+  1. print-ready PDF with MediaBox carta/oficio + correct DPI for layout
   2. web-safe **&lt; 2MB**
-- Use fixed size catalog from config; don’t invent free-form dimensions in MVP.
+- Use fixed catalog from config; don’t invent free-form dimensions in MVP.
 - Send only print-ready assets to PrintNode.
 
 ## Shared
