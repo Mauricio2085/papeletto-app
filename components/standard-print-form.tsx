@@ -7,6 +7,7 @@ import {
 } from "@/app/(public)/impresion-estandar/actions";
 import { FileUploadPreview } from "@/components/file-upload-preview";
 import { formatCop } from "@/lib/format/currency";
+import { PAPER_SIZES, paperSizeLabel } from "@/lib/print/paper-sizes";
 import { MAX_COPIES, MIN_COPIES } from "@/lib/print-standard/constants";
 
 const initialState: StandardPrintFormState = null;
@@ -38,6 +39,34 @@ export function StandardPrintForm() {
           </div>
 
           <FileUploadPreview fileInputId="file" />
+
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium text-foreground">Tamaño de hoja</legend>
+            <div className="flex flex-wrap gap-4">
+              {PAPER_SIZES.map((size) => (
+                <label
+                  key={size}
+                  className="flex cursor-pointer items-center gap-2 text-sm text-foreground"
+                >
+                  <input
+                    type="radio"
+                    name="paperSize"
+                    value={size}
+                    defaultChecked={size === "carta"}
+                    required
+                    className="size-4 accent-brand"
+                  />
+                  {paperSizeLabel(size)}
+                  <span className="text-xs text-muted">
+                    {size === "carta" ? "8.5×11″" : "8.5×14″"}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-muted">
+              Usa la bandeja que corresponda en la impresora (carta u oficio).
+            </p>
+          </fieldset>
 
           <div className="space-y-2">
             <label htmlFor="copies" className="block text-sm font-medium text-foreground">
@@ -94,6 +123,10 @@ export function StandardPrintForm() {
               <dd className="font-mono text-xs text-foreground">{state.orderId}</dd>
             </div>
             <div>
+              <dt className="text-muted">Hoja</dt>
+              <dd className="font-medium text-foreground">{state.paperSizeLabel}</dd>
+            </div>
+            <div>
               <dt className="text-muted">Páginas</dt>
               <dd className="font-medium text-foreground">{state.pageCount}</dd>
             </div>
@@ -114,6 +147,19 @@ export function StandardPrintForm() {
               </dd>
             </div>
           </dl>
+
+          {state.paperSizeWarning && (
+            <p
+              className={[
+                "rounded-xl border px-4 py-3 text-sm",
+                state.paperSizeMismatch
+                  ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                  : "border-line bg-background/40 text-muted",
+              ].join(" ")}
+            >
+              {state.paperSizeWarning}
+            </p>
+          )}
 
           {state.confirmError && (
             <p

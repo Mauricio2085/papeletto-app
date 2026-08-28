@@ -1,15 +1,18 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PAPER_DIMENSIONS, type PaperSize } from "@/lib/print/paper-sizes";
 
 const FONT_SIZE = 11;
 const LINE_HEIGHT = 14;
 const MARGIN = 54;
-const PAGE_WIDTH = 595.28; // A4
-const PAGE_HEIGHT = 841.89;
 
 /**
- * Build a simple A4 PDF from plain text for PrintNode (print-ready).
+ * Build a simple PDF from plain text for PrintNode (print-ready).
  */
-export async function textBufferToPdf(buffer: Buffer): Promise<Buffer> {
+export async function textBufferToPdf(
+  buffer: Buffer,
+  paperSize: PaperSize,
+): Promise<Buffer> {
+  const { widthPt: PAGE_WIDTH, heightPt: PAGE_HEIGHT } = PAPER_DIMENSIONS[paperSize];
   const text = buffer.toString("utf8").replace(/\r\n/g, "\n");
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Courier);
@@ -80,7 +83,6 @@ function wrapText(
       if (font.widthOfTextAtSize(word, fontSize) <= maxWidth) {
         current = word;
       } else {
-        // Hard-break oversized tokens
         let chunk = "";
         for (const ch of word) {
           const next = chunk + ch;

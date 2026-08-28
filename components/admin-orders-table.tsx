@@ -7,7 +7,8 @@ import {
   ORDER_STATUS_LABELS,
   ORDER_TYPE_LABELS,
 } from "@/lib/orders/labels";
-import { parseOrderMetadata, parseStandardPrintSnapshot } from "@/lib/orders/parse";
+import { parseOrderMetadata, parseStandardPrintSnapshot, resolveOrderPaperSize } from "@/lib/orders/parse";
+import { paperSizeLabel } from "@/lib/print/paper-sizes";
 import type { OrderListItem } from "@/lib/orders/queries";
 
 type AdminOrdersTableProps = {
@@ -36,6 +37,7 @@ function resolveOrderSummary(order: OrderListItem) {
     filename: asset?.filename ?? metadata.filename ?? "—",
     pageCount: snapshot?.pageCount ?? asset?.pageCount ?? null,
     copies: snapshot?.copies ?? metadata.copies ?? null,
+    paperSize: resolveOrderPaperSize(metadata, snapshot),
   };
 }
 
@@ -59,6 +61,7 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
             <th className="px-4 py-3 font-semibold">Referencia</th>
             <th className="px-4 py-3 font-semibold">Servicio</th>
             <th className="px-4 py-3 font-semibold">Archivo</th>
+            <th className="px-4 py-3 font-semibold">Hoja</th>
             <th className="px-4 py-3 font-semibold">Págs.</th>
             <th className="px-4 py-3 font-semibold">Copias</th>
             <th className="px-4 py-3 font-semibold">Total</th>
@@ -88,6 +91,9 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                 </td>
                 <td className="max-w-[12rem] truncate px-4 py-3 text-foreground" title={summary.filename}>
                   {summary.filename}
+                </td>
+                <td className="px-4 py-3 text-muted">
+                  {summary.paperSize ? paperSizeLabel(summary.paperSize) : "—"}
                 </td>
                 <td className="px-4 py-3 text-muted">
                   {summary.pageCount ?? "—"}

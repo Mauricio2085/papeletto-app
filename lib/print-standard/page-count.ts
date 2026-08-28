@@ -1,8 +1,9 @@
 import { PDFDocument } from "pdf-lib";
 import {
-  TEXT_CHARS_PER_PAGE,
   isDocxMime,
+  textCharsPerPage,
 } from "@/lib/print-standard/constants";
+import type { PaperSize } from "@/lib/print/paper-sizes";
 
 export async function countPdfPages(buffer: Buffer): Promise<number> {
   try {
@@ -14,15 +15,20 @@ export async function countPdfPages(buffer: Buffer): Promise<number> {
   }
 }
 
-export function estimateTextPages(text: string): number {
+export function estimateTextPages(text: string, paperSize: PaperSize): number {
   const trimmed = text.trim();
   if (!trimmed) {
     return 1;
   }
-  return Math.max(1, Math.ceil(trimmed.length / TEXT_CHARS_PER_PAGE));
+  const charsPerPage = textCharsPerPage(paperSize);
+  return Math.max(1, Math.ceil(trimmed.length / charsPerPage));
 }
 
-export async function countPages(buffer: Buffer, mimeType: string): Promise<number> {
+export async function countPages(
+  buffer: Buffer,
+  mimeType: string,
+  paperSize: PaperSize,
+): Promise<number> {
   if (mimeType === "application/pdf") {
     return countPdfPages(buffer);
   }
@@ -32,5 +38,5 @@ export async function countPages(buffer: Buffer, mimeType: string): Promise<numb
     );
   }
   const text = buffer.toString("utf8");
-  return estimateTextPages(text);
+  return estimateTextPages(text, paperSize);
 }

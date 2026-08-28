@@ -21,7 +21,8 @@ import {
   assetKindLabel,
   printJobStatusLabel,
 } from "@/lib/orders/labels";
-import { parseOrderMetadata, parseStandardPrintSnapshot } from "@/lib/orders/parse";
+import { parseOrderMetadata, parseStandardPrintSnapshot, resolveOrderPaperSize } from "@/lib/orders/parse";
+import { paperSizeLabel } from "@/lib/print/paper-sizes";
 import { getOrderById } from "@/lib/orders/queries";
 
 type OrderDetailPageProps = {
@@ -43,6 +44,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   const snapshot = parseStandardPrintSnapshot(order.pricingSnapshot);
   const metadata = parseOrderMetadata(order.metadata);
+  const paperSize = resolveOrderPaperSize(metadata, snapshot);
   const originalAsset = order.assets.find((asset) => asset.kind === "original");
   const displayAssets = visibleOrderAssets(order.assets);
   const previewAsset = getPrintPreviewAsset(order.assets);
@@ -99,6 +101,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 title={originalAsset?.filename ?? metadata.filename}
               >
                 {originalAsset?.filename ?? metadata.filename ?? "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">Hoja</dt>
+              <dd className="font-medium text-foreground">
+                {paperSize ? paperSizeLabel(paperSize) : "—"}
+                {metadata.paperSizeMismatch && (
+                  <span className="ml-2 text-xs text-amber-300">· revisar tamaño</span>
+                )}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
@@ -174,7 +185,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             <div className="rounded-xl border border-brand/30 bg-brand/5 px-4 py-4">
               <p className="mb-3 text-sm text-muted">
                 Cotización autorizada por el cliente. Revisa el archivo, confirma el pago
-                en mostrador y envía a imprimir.
+                en mostrador y envía a imprimir
+                {paperSize ? ` en hoja ${paperSizeLabel(paperSize).toLowerCase()}` : ""}.
               </p>
               {previewAsset && (
                 <p className="mb-3 text-xs text-muted">

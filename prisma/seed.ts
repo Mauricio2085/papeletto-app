@@ -12,7 +12,11 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 const prices = [
+  { key: "print.bw.carta.page", amountCents: 200, unit: "page" },
+  { key: "print.bw.oficio.page", amountCents: 200, unit: "page" },
   { key: "print.bw.a4.page", amountCents: 200, unit: "page" },
+  { key: "print.color.carta.page", amountCents: 500, unit: "page" },
+  { key: "print.color.oficio.page", amountCents: 500, unit: "page" },
   { key: "print.color.a4.page", amountCents: 500, unit: "page" },
   { key: "special.10x15", amountCents: 1500, unit: "size" },
   { key: "special.a4", amountCents: 2500, unit: "size" },

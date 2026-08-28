@@ -1,3 +1,9 @@
+import {
+  DEFAULT_PAPER_SIZE,
+  type PaperSize,
+  printBwPriceKey,
+} from "@/lib/print/paper-sizes";
+
 export const STANDARD_PRINT_MAX_BYTES = 15 * 1024 * 1024; // 15 MB
 
 export const DOCX_MIME =
@@ -14,11 +20,20 @@ export const STANDARD_PRINT_ALLOWED_EXTENSIONS = new Set([".pdf", ".txt", ".docx
 /** Legacy Word binary — explicitly rejected. */
 export const LEGACY_DOC_EXTENSION = ".doc";
 
-/** Default price key for B&W A4 per page (seed). */
-export const STANDARD_PRINT_PRICE_KEY = "print.bw.a4.page";
+/** Default price key for B&W carta per page (seed). */
+export const STANDARD_PRINT_PRICE_KEY = printBwPriceKey(DEFAULT_PAPER_SIZE);
 
-/** Text page estimate: ~3000 chars per A4 page at default font. */
-export const TEXT_CHARS_PER_PAGE = 3000;
+/** ~3000 chars per carta page at default font (estimate for .txt). */
+export const TEXT_CHARS_PER_PAGE_CARTA = 3000;
+
+/** ~4000 chars per oficio page (longer sheet, same width). */
+export const TEXT_CHARS_PER_PAGE_OFICIO = 4000;
+
+export function textCharsPerPage(paperSize: PaperSize): number {
+  return paperSize === "oficio"
+    ? TEXT_CHARS_PER_PAGE_OFICIO
+    : TEXT_CHARS_PER_PAGE_CARTA;
+}
 
 export const MIN_COPIES = 1;
 export const MAX_COPIES = 99;

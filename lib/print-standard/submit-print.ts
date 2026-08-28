@@ -8,6 +8,7 @@ import {
   parsePrinterId,
   resolveDefaultPrinter,
 } from "@/lib/printnode/resolve-printer";
+import { parsePaperSize } from "@/lib/print/paper-sizes";
 import { textBufferToPdf } from "@/lib/print-standard/text-to-pdf";
 import { readAssetBuffer, saveAssetBuffer } from "@/lib/storage/local";
 
@@ -63,7 +64,12 @@ async function ensurePrintReadyPdf(orderId: string): Promise<{
     };
   }
 
-  const pdfBuffer = await textBufferToPdf(originalBuffer);
+  const pdfBuffer = await textBufferToPdf(
+    originalBuffer,
+    parsePaperSize(metadata.paperSize) ??
+      parsePaperSize(snapshot?.paperSize) ??
+      "carta",
+  );
   const pdfFilename = original.filename.replace(/\.[^.]+$/, "") + ".pdf";
   const storageKey = `orders/${orderId}/${randomUUID()}-${pdfFilename}`;
   await saveAssetBuffer(storageKey, pdfBuffer);

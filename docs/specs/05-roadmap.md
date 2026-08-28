@@ -39,11 +39,11 @@
 
 Alineación con operación real (dos bandejas). Spec: [06-paper-sizes.md](06-paper-sizes.md).
 
-- [ ] Catálogo `lib/print/paper-sizes.ts` (puntos PDF, detección MediaBox)
-- [ ] Selector cliente carta/oficio + advertencia si PDF no coincide
-- [ ] Precios seed `print.bw.carta.page` / `print.bw.oficio.page` (migrar desde `a4`)
-- [ ] `text-to-pdf` y cotización según hoja elegida
-- [ ] Badge carta/oficio en admin (listado + detalle)
+- [x] Catálogo `lib/print/paper-sizes.ts` (puntos PDF, detección MediaBox)
+- [x] Selector cliente carta/oficio + advertencia si PDF no coincide
+- [x] Precios seed `print.bw.carta.page` / `print.bw.oficio.page` (migrar desde `a4`)
+- [x] `text-to-pdf` y cotización según hoja elegida
+- [x] Badge carta/oficio en admin (listado + detalle)
 
 ## Phase 3 — Impresión especial
 

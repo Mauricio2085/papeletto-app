@@ -35,14 +35,9 @@
 - Fallo PrintNode → `FAILED` + acción de reintento para staff
 - Archivo carta/oficio vs elección distinta → advertencia en UI (no error silencioso)
 
-### Alineación carta/oficio (pendiente implementación)
+### Alineación carta/oficio
 
-El MVP inicial cotizó con clave `print.bw.a4.page` y texto→PDF en dimensiones A4. Pendiente:
-
-- Selector cliente + detección PDF + metadata `paperSize`
-- Precios seed `print.bw.carta.page` / `print.bw.oficio.page` (y color)
-- `text-to-pdf` según hoja elegida (612×792 o 612×1008)
-- Badge carta/oficio en admin antes de imprimir
+Implementado en extensión Phase 2 — ver [06-paper-sizes.md](06-paper-sizes.md) y roadmap.
 
 ### Extensión Phase 2 — Word (`.docx`)
 

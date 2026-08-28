@@ -1,6 +1,10 @@
 "use server";
 
 import {
+  paperSizeLabel,
+  parsePaperSize,
+} from "@/lib/print/paper-sizes";
+import {
   MAX_COPIES,
   MIN_COPIES,
 } from "@/lib/print-standard/constants";
@@ -10,6 +14,7 @@ import {
   fileToBuffer,
   validateStandardPrintUpload,
 } from "@/lib/print-standard/validate";
+import type { PaperSize } from "@/lib/print/paper-sizes";
 
 export type StandardPrintFormState =
   | {
@@ -20,6 +25,10 @@ export type StandardPrintFormState =
       copies: number;
       unitPriceCents: number;
       totalCents: number;
+      paperSize: PaperSize;
+      paperSizeLabel: string;
+      paperSizeWarning?: string;
+      paperSizeMismatch?: boolean;
       confirmed?: boolean;
       confirmError?: string;
     }
@@ -37,6 +46,14 @@ function parseCopies(raw: FormDataEntryValue | null): number | { error: string }
   return value;
 }
 
+function parsePaperSizeInput(raw: FormDataEntryValue | null): PaperSize | { error: string } {
+  const parsed = parsePaperSize(String(raw ?? ""));
+  if (!parsed) {
+    return { error: "Selecciona tamaño de hoja: carta u oficio." };
+  }
+  return parsed;
+}
+
 async function handleQuote(formData: FormData): Promise<StandardPrintFormState> {
   const file = formData.get("file");
   if (!(file instanceof File)) {
@@ -46,6 +63,11 @@ async function handleQuote(formData: FormData): Promise<StandardPrintFormState> 
   const copiesResult = parseCopies(formData.get("copies"));
   if (typeof copiesResult !== "number") {
     return { ok: false, error: copiesResult.error };
+  }
+
+  const paperSizeResult = parsePaperSizeInput(formData.get("paperSize"));
+  if (typeof paperSizeResult !== "string") {
+    return { ok: false, error: paperSizeResult.error };
   }
 
   const validated = validateStandardPrintUpload(file);
@@ -61,6 +83,7 @@ async function handleQuote(formData: FormData): Promise<StandardPrintFormState> 
       mimeType: validated.mimeType,
       byteSize: file.size,
       copies: copiesResult,
+      paperSize: paperSizeResult,
     });
 
     return {
@@ -71,6 +94,10 @@ async function handleQuote(formData: FormData): Promise<StandardPrintFormState> 
       copies: result.quote.copies,
       unitPriceCents: result.quote.unitPriceCents,
       totalCents: result.quote.totalCents,
+      paperSize: result.paperSize,
+      paperSizeLabel: paperSizeLabel(result.paperSize),
+      paperSizeWarning: result.paperSizeWarning,
+      paperSizeMismatch: result.paperSizeMismatch,
     };
   } catch (error) {
     const message =

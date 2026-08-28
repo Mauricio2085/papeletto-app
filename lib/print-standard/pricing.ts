@@ -42,10 +42,11 @@ export function calculateQuote(
   };
 }
 
-export function quoteToSnapshot(quote: StandardPrintQuote) {
+export function quoteToSnapshot(quote: StandardPrintQuote, paperSize?: string) {
   return {
     service: "PRINT_STANDARD",
     priceKey: quote.priceKey,
+    paperSize,
     pageCount: quote.pageCount,
     copies: quote.copies,
     unitPriceCents: quote.unitPriceCents,
