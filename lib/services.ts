@@ -27,10 +27,10 @@ export const services: ServiceAvailability[] = [
     key: "impresion-especial",
     href: "/impresion-especial",
     title: "Impresión especial",
-    description: "Organiza fotos y documentos en medidas estándar y exporta bajo 2MB.",
+    description: "Maqueta fotos 10×15 en hoja carta u oficio y envía a imprimir.",
     icon: "photo",
-    tag: "bajo 2MB",
-    available: false,
+    tag: "10×15",
+    available: true,
   },
   {
     key: "cv",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   adminAssetUrl,
+  isImageAsset,
   isPdfAsset,
   isTextAsset,
 } from "@/lib/orders/assets";
@@ -22,7 +23,9 @@ export function AdminAssetPreview({
   kind,
 }: AdminAssetPreviewProps) {
   const url = adminAssetUrl(orderId, assetId);
-  const showInline = isPdfAsset(mimeType, filename) || isTextAsset(mimeType, filename);
+  const showPdf = isPdfAsset(mimeType, filename);
+  const showText = isTextAsset(mimeType, filename) && !showPdf;
+  const showImage = isImageAsset(mimeType, filename) && !showPdf;
 
   return (
     <div className="mt-3 space-y-3 border-t border-line pt-3">
@@ -37,7 +40,7 @@ export function AdminAssetPreview({
         </Link>
       </div>
 
-      {showInline && isPdfAsset(mimeType, filename) && (
+      {showPdf && (
         <iframe
           title={`Vista previa ${filename}`}
           src={url}
@@ -45,11 +48,20 @@ export function AdminAssetPreview({
         />
       )}
 
-      {showInline && isTextAsset(mimeType, filename) && !isPdfAsset(mimeType, filename) && (
+      {showText && (
         <iframe
           title={`Vista previa ${filename}`}
           src={url}
           className="h-[min(16rem,40vh)] w-full rounded-lg border border-line bg-background"
+        />
+      )}
+
+      {showImage && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt={filename}
+          className="mx-auto max-h-64 w-auto rounded-lg border border-line object-contain"
         />
       )}
     </div>

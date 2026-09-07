@@ -36,3 +36,17 @@ export function isPdfAsset(mimeType: string, filename: string): boolean {
 export function isTextAsset(mimeType: string, filename: string): boolean {
   return mimeType === "text/plain" || filename.toLowerCase().endsWith(".txt");
 }
+
+export function isImageAsset(mimeType: string, filename: string): boolean {
+  if (mimeType.startsWith("image/")) {
+    return true;
+  }
+  const lower = filename.toLowerCase();
+  return (
+    lower.endsWith(".jpg") ||
+    lower.endsWith(".jpeg") ||
+    lower.endsWith(".png") ||
+    lower.endsWith(".webp")
+  );
+}
+

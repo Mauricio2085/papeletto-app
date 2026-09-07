@@ -47,10 +47,10 @@ Alineación con operación real (dos bandejas). Spec: [06-paper-sizes.md](06-pap
 
 ## Phase 3 — Impresión especial
 
-- [ ] Catálogo de presets de layout + hoja carta/oficio obligatoria
-- [ ] Generación print-ready
+- [x] Catálogo de presets de layout + hoja carta/oficio obligatoria
+- [x] Generación print-ready
 - [ ] Compresor web-safe &lt;2MB
-- [ ] Envío PrintNode para trabajos especiales
+- [x] Envío PrintNode para trabajos especiales
 
 ## Phase 4 — Documentos (n8n)
 

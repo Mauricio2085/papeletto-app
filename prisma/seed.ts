@@ -19,7 +19,7 @@ const prices = [
   { key: "print.color.oficio.page", amountCents: 500, unit: "page" },
   { key: "print.color.a4.page", amountCents: 500, unit: "page" },
   { key: "special.10x15", amountCents: 1500, unit: "size" },
-  { key: "special.a4", amountCents: 2500, unit: "size" },
+  { key: "special.a4", amountCents: 2500, unit: "size" }, // legacy; no expuesto en catálogo MVP
   { key: "doc.cv", amountCents: 8000, unit: "document" },
   { key: "doc.derecho_peticion", amountCents: 10000, unit: "document" },
 ] as const;

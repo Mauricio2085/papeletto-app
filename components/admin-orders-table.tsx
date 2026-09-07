@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { OrderStatus, OrderType } from "@prisma/client";
+import { OrderType, type OrderStatus } from "@prisma/client";
 import { formatDateTimeBogota } from "@/lib/format/datetime";
 import { formatCop } from "@/lib/format/currency";
 import {
@@ -7,7 +7,12 @@ import {
   ORDER_STATUS_LABELS,
   ORDER_TYPE_LABELS,
 } from "@/lib/orders/labels";
-import { parseOrderMetadata, parseStandardPrintSnapshot, resolveOrderPaperSize } from "@/lib/orders/parse";
+import {
+  parseOrderMetadata,
+  parseSpecialPrintSnapshot,
+  parseStandardPrintSnapshot,
+  resolveOrderPaperSize,
+} from "@/lib/orders/parse";
 import { paperSizeLabel } from "@/lib/print/paper-sizes";
 import type { OrderListItem } from "@/lib/orders/queries";
 
@@ -29,15 +34,27 @@ function OrderStatusBadge({ status }: { status: OrderStatus }) {
 }
 
 function resolveOrderSummary(order: OrderListItem) {
-  const snapshot = parseStandardPrintSnapshot(order.pricingSnapshot);
+  const standardSnapshot = parseStandardPrintSnapshot(order.pricingSnapshot);
+  const specialSnapshot = parseSpecialPrintSnapshot(order.pricingSnapshot);
   const metadata = parseOrderMetadata(order.metadata);
   const asset = order.assets[0];
+  const isSpecial = order.type === OrderType.PRINT_SPECIAL;
 
   return {
     filename: asset?.filename ?? metadata.filename ?? "—",
-    pageCount: snapshot?.pageCount ?? asset?.pageCount ?? null,
-    copies: snapshot?.copies ?? metadata.copies ?? null,
-    paperSize: resolveOrderPaperSize(metadata, snapshot),
+    pageCount: isSpecial
+      ? 1
+      : (standardSnapshot?.pageCount ?? asset?.pageCount ?? null),
+    copies: isSpecial
+      ? (specialSnapshot?.quantity ?? metadata.quantity ?? metadata.copies ?? null)
+      : (standardSnapshot?.copies ?? metadata.copies ?? null),
+    paperSize: resolveOrderPaperSize(
+      metadata,
+      standardSnapshot ?? specialSnapshot,
+    ),
+    layoutLabel: isSpecial
+      ? (metadata.layoutPresetLabel ?? metadata.layoutPreset ?? null)
+      : null,
   };
 }
 
@@ -47,7 +64,7 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
       <div className="rounded-xl border border-dashed border-line px-6 py-12 text-center">
         <p className="text-sm font-medium text-foreground">No hay pedidos con estos filtros</p>
         <p className="mt-1 text-xs text-muted">
-          Las cotizaciones de impresión estándar aparecerán aquí en estado Cotizado.
+          Las cotizaciones de impresión estándar y especial aparecerán aquí.
         </p>
       </div>
     );
@@ -90,7 +107,9 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                   {ORDER_TYPE_LABELS[order.type as OrderType]}
                 </td>
                 <td className="max-w-[12rem] truncate px-4 py-3 text-foreground" title={summary.filename}>
-                  {summary.filename}
+                  {summary.layoutLabel
+                    ? `${summary.filename} · ${summary.layoutLabel}`
+                    : summary.filename}
                 </td>
                 <td className="px-4 py-3 text-muted">
                   {summary.paperSize ? paperSizeLabel(summary.paperSize) : "—"}

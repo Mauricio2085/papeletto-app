@@ -10,8 +10,8 @@ import {
   canMarkOrderReady,
 } from "@/lib/orders/fulfillment";
 import {
-  canPrintStandardOrder,
-  canRetryStandardPrint,
+  canPrintOrder,
+  canRetryPrint,
 } from "@/lib/orders/can-retry";
 import { getPrintPreviewAsset, visibleOrderAssets } from "@/lib/orders/assets";
 import {
@@ -21,9 +21,15 @@ import {
   assetKindLabel,
   printJobStatusLabel,
 } from "@/lib/orders/labels";
-import { parseOrderMetadata, parseStandardPrintSnapshot, resolveOrderPaperSize } from "@/lib/orders/parse";
+import {
+  parseOrderMetadata,
+  parseSpecialPrintSnapshot,
+  parseStandardPrintSnapshot,
+  resolveOrderPaperSize,
+} from "@/lib/orders/parse";
 import { paperSizeLabel } from "@/lib/print/paper-sizes";
 import { getOrderById } from "@/lib/orders/queries";
+import { OrderType } from "@prisma/client";
 
 type OrderDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -42,17 +48,34 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     notFound();
   }
 
-  const snapshot = parseStandardPrintSnapshot(order.pricingSnapshot);
+  const standardSnapshot = parseStandardPrintSnapshot(order.pricingSnapshot);
+  const specialSnapshot = parseSpecialPrintSnapshot(order.pricingSnapshot);
   const metadata = parseOrderMetadata(order.metadata);
-  const paperSize = resolveOrderPaperSize(metadata, snapshot);
+  const paperSize = resolveOrderPaperSize(
+    metadata,
+    standardSnapshot ?? specialSnapshot,
+  );
+  const isSpecial = order.type === OrderType.PRINT_SPECIAL;
   const originalAsset = order.assets.find((asset) => asset.kind === "original");
   const displayAssets = visibleOrderAssets(order.assets);
   const previewAsset = getPrintPreviewAsset(order.assets);
-  const showPrint = canPrintStandardOrder(order);
-  const showRetry = canRetryStandardPrint(order);
+  const showPrint = canPrintOrder(order);
+  const showRetry = canRetryPrint(order);
   const showReady = canMarkOrderReady(order);
   const showCompleted = canMarkOrderCompleted(order);
   const showFulfillment = showReady || showCompleted;
+
+  const pageOrQtyLabel = isSpecial ? "Cantidad" : "Copias";
+  const pageOrQtyValue = isSpecial
+    ? (specialSnapshot?.quantity ?? metadata.quantity ?? metadata.copies ?? "—")
+    : (standardSnapshot?.copies ?? metadata.copies ?? "—");
+  const pagesValue = isSpecial
+    ? 1
+    : (standardSnapshot?.pageCount ?? originalAsset?.pageCount ?? "—");
+  const unitPrice = isSpecial
+    ? specialSnapshot?.unitPriceCents
+    : standardSnapshot?.unitPriceCents;
+  const unitPriceLabel = isSpecial ? "Precio unitario" : "Precio por página";
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
@@ -103,6 +126,14 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 {originalAsset?.filename ?? metadata.filename ?? "—"}
               </dd>
             </div>
+            {isSpecial && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">Layout</dt>
+                <dd className="font-medium text-foreground">
+                  {metadata.layoutPresetLabel ?? metadata.layoutPreset ?? "—"}
+                </dd>
+              </div>
+            )}
             <div className="flex justify-between gap-4">
               <dt className="text-muted">Hoja</dt>
               <dd className="font-medium text-foreground">
@@ -112,23 +143,21 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 )}
               </dd>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">Páginas</dt>
-              <dd className="font-medium text-foreground">
-                {snapshot?.pageCount ?? originalAsset?.pageCount ?? "—"}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">Copias</dt>
-              <dd className="font-medium text-foreground">
-                {snapshot?.copies ?? metadata.copies ?? "—"}
-              </dd>
-            </div>
-            {snapshot && (
+            {!isSpecial && (
               <div className="flex justify-between gap-4">
-                <dt className="text-muted">Precio por página</dt>
+                <dt className="text-muted">Páginas</dt>
+                <dd className="font-medium text-foreground">{pagesValue}</dd>
+              </div>
+            )}
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">{pageOrQtyLabel}</dt>
+              <dd className="font-medium text-foreground">{pageOrQtyValue}</dd>
+            </div>
+            {unitPrice != null && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">{unitPriceLabel}</dt>
                 <dd className="font-medium text-foreground">
-                  {formatCop(snapshot.unitPriceCents)}
+                  {formatCop(unitPrice)}
                 </dd>
               </div>
             )}

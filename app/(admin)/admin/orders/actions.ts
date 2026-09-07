@@ -1,11 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { OrderType } from "@prisma/client";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import {
   printStandardOrder,
   retryStandardPrintOrder,
 } from "@/lib/print-standard/confirm-order";
+import {
+  printSpecialOrder,
+  retrySpecialPrintOrder,
+} from "@/lib/print-special/confirm-order";
 import {
   markOrderCompleted,
   markOrderReady,
@@ -32,6 +38,27 @@ function parseOrderId(formData: FormData): string | null {
   return orderId || null;
 }
 
+async function dispatchPrint(orderId: string, mode: "print" | "retry") {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) {
+    throw new Error("Pedido no encontrado.");
+  }
+
+  if (order.type === OrderType.PRINT_SPECIAL) {
+    return mode === "print"
+      ? printSpecialOrder(orderId)
+      : retrySpecialPrintOrder(orderId);
+  }
+
+  if (order.type === OrderType.PRINT_STANDARD) {
+    return mode === "print"
+      ? printStandardOrder(orderId)
+      : retryStandardPrintOrder(orderId);
+  }
+
+  throw new Error("Este tipo de pedido no se envía a impresora.");
+}
+
 export async function printOrderAction(
   _prev: StaffOrderActionState,
   formData: FormData,
@@ -47,7 +74,7 @@ export async function printOrderAction(
   }
 
   try {
-    const result = await printStandardOrder(orderId);
+    const result = await dispatchPrint(orderId, "print");
     revalidatePath("/admin");
     revalidatePath(`/admin/orders/${orderId}`);
 
@@ -86,7 +113,7 @@ export async function retryPrintOrderAction(
   }
 
   try {
-    const result = await retryStandardPrintOrder(orderId);
+    const result = await dispatchPrint(orderId, "retry");
     revalidatePath("/admin");
     revalidatePath(`/admin/orders/${orderId}`);
 
